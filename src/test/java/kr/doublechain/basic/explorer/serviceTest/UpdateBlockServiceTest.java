@@ -23,7 +23,7 @@ public class UpdateBlockServiceTest {
 	@Autowired
 	UpdateBlockService updateBlockService;
 
-//	@Test
+	@Test
 	public void checkBlockTest() throws Exception {
 		System.out.println(updateBlockService.checkBlock().toString());
 	}

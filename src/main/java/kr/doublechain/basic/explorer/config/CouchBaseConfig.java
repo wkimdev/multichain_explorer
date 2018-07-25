@@ -1,4 +1,4 @@
-package kr.doublechain.basic.explorer.common;
+package kr.doublechain.basic.explorer.config;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;

@@ -4,9 +4,6 @@ import java.math.BigInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -17,6 +14,7 @@ import com.google.gson.JsonObject;
 import kr.doublechain.basic.explorer.service.DccService;
 import kr.doublechain.basic.explorer.service.UpdateBlockService;
 
+@EnableAsync
 @Component
 public class UpdateBlockListener {
 
@@ -26,9 +24,9 @@ public class UpdateBlockListener {
 	@Autowired
 	UpdateBlockService updateBlockService;
 
+	@Async
 	@EventListener(ApplicationReadyEvent.class)
 	public void start() throws Exception {
-		System.out.println("start!!!!");
 		BigInteger currentHeight = null;
 		JsonObject currentBlock = updateBlockService.init();
 
@@ -47,7 +45,7 @@ public class UpdateBlockListener {
 				updateBlockService.mergeTx(currentBlock);
 				System.out.println("Update Block : " + currentHeight);
 			} else {
-				//Thread.sleep(1000);
+				Thread.sleep(1000);
 			}
 		}
 

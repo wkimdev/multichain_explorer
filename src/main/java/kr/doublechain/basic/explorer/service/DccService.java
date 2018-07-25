@@ -4,72 +4,52 @@ import java.util.List;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.code.RPCCommandCode;
 import kr.doublechain.basic.explorer.common.CommonUtil;
+import org.springframework.beans.factory.annotation.Value;
 
 
 @Service("dccService")
 public class DccService {
 
-//	public static String host;
-//
-//	public static String port;
-//
-//	public static String user;
-//
-//	public static String password;
-//
-//	@Value("${dcc.host}")
-//	public void setHost(String host) {
-//		DccService.host = host;
-//	}
-//
-//	@Value("${dcc.port}")
-//	public void setPort(String port) {
-//		DccService.port = port;
-//	}
-//
-//	@Value("${dcc.user}")
-//	public void setUser(String user) {
-//		DccService.user = user;
-//	}
-//
-//	@Value("${dcc.password}")
-//	public void setPassword(String password) {
-//		DccService.password = password;
-//	}
+	public static String host;
 
-	@Autowired
-	private HttpClient client;
-	
-	@Autowired
-	private HttpPost request;
-	
-	
+	public static String port;
+
+	public static String user;
+
+	public static String password;
+
+	@Value("${dcc.host}")
+	public void setHost(String host) {
+		DccService.host = host;
+	}
+
+	@Value("${dcc.port}")
+	public void setPort(String port) {
+		DccService.port = port;
+	}
+
+	@Value("${dcc.user}")
+	public void setUser(String user) {
+		DccService.user = user;
+	}
+
+	@Value("${dcc.password}")
+	public void setPassword(String password) {
+		DccService.password = password;
+	}
+
 	/**
 	 * RPC Call
 	 */
 	public Object RPCCall(String rpcCommand, List<Object> param) throws Exception {
-		//return RemoteCall(user, password, host, port, rpcCommand, param);
-		return RemoteCall(rpcCommand, param);
+		return CommonUtil.RemoteCall(user, password, host, port, rpcCommand, param);
+//		return CommonUtil.RemoteCall(rpcCommand, rpcCommand, rpcCommand, rpcCommand, rpcCommand, param)RemoteCall(rpcCommand, param);
 	}
 
 	/**
@@ -147,28 +127,4 @@ public class DccService {
 			return null;
 		}
 	}
-	
-	//public Object RemoteCall(String user, String password, String host, String port, String rpcCommand,
-	//		List<Object> param) throws Exception {
-
-	public Object RemoteCall(String rpcCommand,
-			List<Object> param) throws Exception {
-		JSONObject json = new JSONObject();
-		json.put("method", rpcCommand);
-		json.put("params", new JSONArray(param));
-		request.setEntity(new StringEntity(json.toString()));
-
-		HttpResponse response = client.execute(request);
-
-		String contents = EntityUtils.toString(response.getEntity());
-		JsonObject jsonObject = CommonUtil.convertGsonFromString(contents);
-
-		if (jsonObject.get("error").isJsonNull()) {
-			return jsonObject.get("result");
-		} else {
-			return null;
-		}
-
-	}
-
 }
