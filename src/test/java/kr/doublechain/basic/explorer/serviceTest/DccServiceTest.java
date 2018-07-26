@@ -20,8 +20,12 @@ public class DccServiceTest {
 	@Autowired
 	DccService dccService;
 	
-//	@Test
+	@Test
 	public void getInfoCall() throws Exception {
+		for (int i = 0; i < 10000; i++) {
+			dccService.getInfo();
+			System.out.println(i);
+		}
 		System.out.println(new Gson().toJson(dccService.getInfo()));
 	}
 
@@ -30,7 +34,7 @@ public class DccServiceTest {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
 	}
 	
-	@Test
+//	@Test
 	public void getBlockByNumTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock(new BigInteger("0"))));
 	}

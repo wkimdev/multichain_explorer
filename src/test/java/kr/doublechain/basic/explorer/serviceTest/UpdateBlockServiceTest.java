@@ -23,7 +23,7 @@ public class UpdateBlockServiceTest {
 	@Autowired
 	UpdateBlockService updateBlockService;
 
-	@Test
+//	@Test
 	public void checkBlockTest() throws Exception {
 		System.out.println(updateBlockService.checkBlock().toString());
 	}
@@ -41,10 +41,11 @@ public class UpdateBlockServiceTest {
 
 //	@Test
 	public void Test() throws Exception {
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10; i++) {
 			JsonObject jo = dccService.getBlock(new BigInteger(i + ""));
 			updateBlockService.mergeBlock(jo);
 			updateBlockService.mergeTx(jo);
+			System.out.println(i);
 		}
 	}
 
@@ -53,8 +54,8 @@ public class UpdateBlockServiceTest {
 		updateBlockService.removeBlocks(new BigInteger("0"));
 	}
 
-//	@Test
-//	public void startTest() throws Exception {
-//		updateBlockService.start();
-//	}
+	@Test
+	public void startTest() throws Exception {
+		updateBlockService.start();
+	}
 }

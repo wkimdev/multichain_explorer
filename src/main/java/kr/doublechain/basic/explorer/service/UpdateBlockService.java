@@ -154,10 +154,39 @@ public class UpdateBlockService {
 				mergeBlock(currentBlock);
 				mergeTx(currentBlock);
 				System.out.println("Update Block : " + currentHeight);
+				Thread.sleep(50);
 			} else {
 				break;
 			}
 		}
 		return currentBlock;
+	}
+	
+	public void start() throws Exception {
+		BigInteger currentHeight = null;
+		JsonObject currentBlock = init();
+
+//		BigInteger currentHeight = checkBlock();
+//		JsonObject currentBlock = null;
+		while (true) {
+
+			currentHeight = checkBlock(currentBlock);
+			currentBlock = dccService.getBlock(currentHeight);
+
+			if (currentBlock.has("nextblockhash")) {
+				mergeBlock(currentBlock); // nextblockhash 업데이트
+
+				currentHeight = currentHeight.add(new BigInteger("1"));
+				currentBlock = dccService.getBlock(currentHeight);
+
+				mergeBlock(currentBlock);
+				mergeTx(currentBlock);
+				System.out.println("Update Block : " + currentHeight);
+				Thread.sleep(50);
+			} else {
+				Thread.sleep(1000);
+			}
+		}
+
 	}
 }

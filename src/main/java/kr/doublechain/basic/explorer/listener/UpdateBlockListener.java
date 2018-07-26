@@ -29,7 +29,6 @@ public class UpdateBlockListener {
 	public void start() throws Exception {
 		BigInteger currentHeight = null;
 		JsonObject currentBlock = updateBlockService.init();
-
 		while (true) {
 
 			currentHeight = updateBlockService.checkBlock(currentBlock);

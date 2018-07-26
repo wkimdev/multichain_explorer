@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+
 @Component
 public class CommonUtil {
 
@@ -157,13 +158,13 @@ public class CommonUtil {
 		}
 
 	}
+
 	
 	/**
-	 * block chain node connect url
+	 * Json RPC로 받은 tx list를 List형태로 반환한다.
 	 * 
-	 * @param host
-	 * @param port
-	 * @return String
+	 * @param JsonObject
+	 * @return List<String>
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<String> getTxList(JsonObject block) {
