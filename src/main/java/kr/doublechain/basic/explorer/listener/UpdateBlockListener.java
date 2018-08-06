@@ -41,7 +41,7 @@ public class UpdateBlockListener {
 				currentBlock = dccService.getBlock(currentHeight);
 
 				updateBlockService.mergeBlock(currentBlock);
-				updateBlockService.mergeTx(currentBlock);
+				updateBlockService.mergeTx(currentHeight);
 				System.out.println("Update Block : " + currentHeight);
 			} else {
 				Thread.sleep(1000);

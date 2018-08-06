@@ -35,6 +35,9 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.txs.name}")
     private String txBucketName;
 
+    @Value("${couchbase.bucket.streams.name}")
+    private String streamBucketName;
+    
     @Value("${couchbase.bucket.user}")
     private String userName;
 
@@ -53,6 +56,11 @@ public class CouchbaseService {
     
     public void upsertBucketTransaction(JsonObject jsonObject) throws Exception {
     	Bucket bucket = connectBucket(txBucketName);
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
+    }
+    
+    public void upsertBucketStream(JsonObject jsonObject) throws Exception {
+    	Bucket bucket = connectBucket(streamBucketName);
         bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
     }
     
@@ -88,6 +96,11 @@ public class CouchbaseService {
     public void deleteTx(String txid) throws Exception {
     	Bucket bucket = connectBucket(txBucketName);
     	bucket.query(N1qlQuery.simple("DELETE FROM `" + txBucketName + "` WHERE txid = \"" + txid + "\""));
+    }
+    
+    public void deleteStrean(String txid) throws Exception {
+    	Bucket bucket = connectBucket(streamBucketName);
+    	bucket.query(N1qlQuery.simple("DELETE FROM `" + streamBucketName + "` WHERE txid = \"" + txid + "\""));
     }
 
 }

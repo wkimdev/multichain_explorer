@@ -36,7 +36,7 @@ public class UpdateBlockServiceTest {
 //	@Test
 	public void mergeTxTest() throws Exception {
 		updateBlockService
-				.mergeTx(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
+				.mergeTx(new BigInteger("0"));
 	}
 
 //	@Test
@@ -44,7 +44,7 @@ public class UpdateBlockServiceTest {
 		for (int i = 0; i < 10; i++) {
 			JsonObject jo = dccService.getBlock(new BigInteger(i + ""));
 			updateBlockService.mergeBlock(jo);
-			updateBlockService.mergeTx(jo);
+			updateBlockService.mergeTx(new BigInteger(i + ""));
 			System.out.println(i);
 		}
 	}
