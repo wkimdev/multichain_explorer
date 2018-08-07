@@ -9,7 +9,9 @@ public enum RPCCommandCode {
 	
 	DCC_GETBLOCK("getblock"),
 	
-	DCC_GETTRANSACTION("getrawtransaction");
+	DCC_GETTRANSACTION("getrawtransaction"),
+	
+	DCC_GETTXDATA("gettxoutdata");
 
 	/** int type constructor */
 	RPCCommandCode(String code, int Id) {

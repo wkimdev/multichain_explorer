@@ -54,8 +54,13 @@ public class UpdateBlockServiceTest {
 		updateBlockService.removeBlocks(new BigInteger("0"));
 	}
 
-	@Test
+//	@Test
 	public void startTest() throws Exception {
 		updateBlockService.start();
+	}
+
+	@Test
+	public void validBlockchainTest() throws Exception {
+		System.out.println(updateBlockService.validBlockchain());
 	}
 }

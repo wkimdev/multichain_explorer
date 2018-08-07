@@ -128,4 +128,15 @@ public class DccService {
 			return null;
 		}
 	}
+	
+	/**
+	 * 트랜잭션 해쉬로 Data 가져오기
+	 */
+	public String getTxdata(String txHash, int n) throws Exception {
+		List<Object> list = new ArrayList<>();
+		list.add(txHash);
+		list.add(n);
+		String data = RPCCall(RPCCommandCode.DCC_GETTXDATA.CODE, list).toString();
+		return data.substring(1, data.length() - 1);
+	}
 }

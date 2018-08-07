@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
@@ -14,6 +15,20 @@ import kr.doublechain.basic.explorer.common.CommonUtil;
 
 @Service("updateBlockService")
 public class UpdateBlockService {
+	
+	public static String chainName;
+
+	public static String genesisBlockHash;
+	
+	@Value("${dcc.chainname}")
+	public void setChainName(String chainName) {
+		UpdateBlockService.chainName = chainName;
+	}
+
+	@Value("${dcc.genesisblockhash}")
+	public void setPort(String genesisBlockHash) {
+		UpdateBlockService.genesisBlockHash = genesisBlockHash;
+	}
 
 	@Autowired
 	private CouchbaseService couchbaseService;
@@ -155,12 +170,20 @@ public class UpdateBlockService {
 							for(int k = 0; k < keyArray.size(); k++) {
 								keys += keyArray.get(k);
 							}
+							
 							item.add("height", transaction.get("height"));
 							item.add("txid", transaction.get("txid"));
 							item.add("time", transaction.get("time"));
 							item.addProperty("publishers", publishers);
 							item.addProperty("streamKeys", keys);
 							item.remove("keys");
+							
+							if (item.get("data").isJsonObject()) {
+								if ("raw".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+									item.addProperty("data", dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()));
+								}
+							}
+							
 							couchbaseService.upsertBucketStream(item);
 						}
 					}
@@ -224,6 +247,12 @@ public class UpdateBlockService {
 	}
 	
 	public void start() throws Exception {
+		
+		if (!validBlockchain()) {
+			System.out.println("Blockchain is not vaild.");
+			return;
+		}
+		
 		BigInteger currentHeight = null;
 		JsonObject currentBlock = init();
 
@@ -248,6 +277,11 @@ public class UpdateBlockService {
 				Thread.sleep(1000);
 			}
 		}
+	}
 
+	public boolean validBlockchain() throws Exception {
+
+		return (genesisBlockHash.equals(dccService.getBlockHash(new BigInteger("0")))
+				&& chainName.equals(dccService.getInfo().get("chainname").getAsString()));
 	}
 }
