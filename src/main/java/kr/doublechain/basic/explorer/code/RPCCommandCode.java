@@ -11,6 +11,7 @@ public enum RPCCommandCode {
 	
 	DCC_GETTRANSACTION("getrawtransaction"),
 	
+	//긴 hex string을 불러오기 위함.
 	DCC_GETTXDATA("gettxoutdata");
 
 	/** int type constructor */

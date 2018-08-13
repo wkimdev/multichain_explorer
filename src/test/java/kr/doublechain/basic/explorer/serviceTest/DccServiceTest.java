@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.google.gson.Gson;
 
 import kr.doublechain.basic.explorer.common.CommonUtil;
-import kr.doublechain.basic.explorer.service.DccService;
+import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -20,36 +20,37 @@ public class DccServiceTest {
 	@Autowired
 	DccService dccService;
 	
-	@Test
+	//@Test
 	public void getInfoCall() throws Exception {
-		for (int i = 0; i < 10000; i++) {
-			dccService.getInfo();
-			System.out.println(i);
-		}
+//		for (int i = 0; i < 10000; i++) {
+//			dccService.getInfo();
+//			System.out.println(i);
+//		}
 		System.out.println(new Gson().toJson(dccService.getInfo()));
 	}
 
 	//@Test
 	public void getBlockByHashTest() throws Exception {
-		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
+		//System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
+		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("004a42af0ba370e8d6cc89c30c9b8fd001203f9acc9f64368d161ac3efdc754f")));
 	}
 	
-//	@Test
+	//@Test
 	public void getBlockByNumTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock(new BigInteger("0"))));
 	}
 	
-//	@Test
+	//@Test
 	public void getTxTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d")));
 	}
 	
-//	@Test
+	//@Test
 	public void getBlockHashTest() throws Exception {
 		System.out.println(dccService.getBlockHash(new BigInteger("0")));
 	}
 	
-//	@Test
+	//@Test
 	public void getNextBlockHashTest() throws Exception {
 		System.out.println(dccService.getNextBlockHash(new BigInteger("0")));
 	}

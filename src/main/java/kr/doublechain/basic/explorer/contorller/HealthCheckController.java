@@ -1,5 +1,6 @@
 package kr.doublechain.basic.explorer.contorller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,5 +18,6 @@ public class HealthCheckController {
     public Health healthInfo() {
         return healthCheck.health();
     }
+    
 
 }

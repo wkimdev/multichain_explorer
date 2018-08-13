@@ -12,7 +12,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.service.dcc.DccService;
 
+/**
+ *
+ * 
+ */
 @Service("updateBlockService")
 public class UpdateBlockService {
 	
@@ -65,6 +70,13 @@ public class UpdateBlockService {
 		}
 	}
 	
+	/**
+	 * DB에 저장된 가장 최신의 유효한 블록 번호를 리턴한다.
+	 * 
+	 * @param void
+	 * @return Map<String, Object>
+	 * @throws Exception
+	 */
 	public BigInteger checkBlock(JsonObject currentBlock) throws Exception {
 
 		while (true) {
@@ -178,8 +190,13 @@ public class UpdateBlockService {
 							item.addProperty("streamKeys", keys);
 							item.remove("keys");
 							
+							
+							// 1. hex string ==> data가 너무 길면 안들어간다.
+							// 2. 
 							if (item.get("data").isJsonObject()) {
 								if ("raw".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+									
+									//n이 1 또는 0??
 									item.addProperty("data", dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()));
 								}
 							}

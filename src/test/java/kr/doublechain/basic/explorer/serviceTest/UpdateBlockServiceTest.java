@@ -10,8 +10,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.service.DccService;
 import kr.doublechain.basic.explorer.service.UpdateBlockService;
+import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -23,7 +23,7 @@ public class UpdateBlockServiceTest {
 	@Autowired
 	UpdateBlockService updateBlockService;
 
-//	@Test
+	@Test
 	public void checkBlockTest() throws Exception {
 		System.out.println(updateBlockService.checkBlock().toString());
 	}
@@ -59,7 +59,7 @@ public class UpdateBlockServiceTest {
 		updateBlockService.start();
 	}
 
-	@Test
+	//@Test
 	public void validBlockchainTest() throws Exception {
 		System.out.println(updateBlockService.validBlockchain());
 	}
