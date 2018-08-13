@@ -180,19 +180,33 @@ public class UpdateBlockService {
 							item.remove("keys");
 							
 							if (item.get("data").isJsonObject()) {
+								
 								if (item.getAsJsonObject("data").has("format")) {
+									
 									if ("raw".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										
 										String raw = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()).toString();
 										raw = raw.substring(1, raw.length() - 1);
-										item.addProperty("data", raw);
+										JsonObject jo = new JsonObject();
+										jo.addProperty("raw", raw);
+										item.add("data", jo);
 									} else if ("json".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										
 										Object json = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt());
 										item.add("data", (JsonElement) json);
 									} else if ("text".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										
 										Object text = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt());
 										item.add("data", (JsonElement) text);
 									}
 								}
+							} else {
+								
+								String raw = item.get("data").toString();
+								raw = raw.substring(1, raw.length() - 1);
+								JsonObject jo = new JsonObject();
+								jo.addProperty("raw", raw);
+								item.add("data", jo);
 							}
 							
 							couchbaseService.upsertBucketStream(item);
