@@ -59,8 +59,10 @@ public class UpdateBlockServiceTest {
 		updateBlockService.start();
 	}
 
-	@Test
+//	@Test
 	public void validBlockchainTest() throws Exception {
 		System.out.println(updateBlockService.validBlockchain());
 	}
+	
+	
 }

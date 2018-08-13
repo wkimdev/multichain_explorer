@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.CommonUtil;
@@ -179,8 +180,18 @@ public class UpdateBlockService {
 							item.remove("keys");
 							
 							if (item.get("data").isJsonObject()) {
-								if ("raw".equals(item.getAsJsonObject("data").get("format").getAsString())) {
-									item.addProperty("data", dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()));
+								if (item.getAsJsonObject("data").has("format")) {
+									if ("raw".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										String raw = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()).toString();
+										raw = raw.substring(1, raw.length() - 1);
+										item.addProperty("data", raw);
+									} else if ("json".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										Object json = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt());
+										item.add("data", (JsonElement) json);
+									} else if ("text".equals(item.getAsJsonObject("data").get("format").getAsString())) {
+										Object text = dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt());
+										item.add("data", (JsonElement) text);
+									}
 								}
 							}
 							
