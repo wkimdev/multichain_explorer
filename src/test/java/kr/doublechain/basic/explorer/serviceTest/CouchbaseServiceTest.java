@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import kr.doublechain.basic.explorer.common.CommonUtil;
 import kr.doublechain.basic.explorer.service.CouchbaseService;
-import kr.doublechain.basic.explorer.service.DccService;
+import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -22,14 +22,14 @@ public class CouchbaseServiceTest {
 	@Autowired
 	DccService dccService;
 	
-//	@Test
+	//@Test
 	public void upsertBucketBlockTest() throws Exception {
 		for (int i = 0; i < 1; i++) {
 			couchbaseService.upsertBucketBlock(dccService.getBlock(new BigInteger(i + "")));
 		}
 	}
 	
-//	@Test
+	@Test
 	public void upsertBucketTransactionTest() throws Exception {
 		couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
 	}

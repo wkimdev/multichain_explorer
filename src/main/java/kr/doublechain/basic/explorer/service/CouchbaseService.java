@@ -66,6 +66,8 @@ public class CouchbaseService {
     
     public JsonObject selectLastBlock() throws Exception {
     	Bucket bucket = connectBucket(blockBucketName);
+    	// limit, offset ?
+    	// height에 따라 정렬해서 블록정보를 가져온다.
         N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height").orderBy(Sort.desc("height")).limit(1).offset(0));
         Iterator<N1qlQueryRow> result = query.iterator();
         JsonObject jsonObject = null;

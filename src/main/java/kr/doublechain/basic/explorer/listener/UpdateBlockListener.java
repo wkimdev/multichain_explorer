@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.service.DccService;
 import kr.doublechain.basic.explorer.service.UpdateBlockService;
+import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @EnableAsync
 @Component
@@ -33,7 +33,7 @@ public class UpdateBlockListener {
 
 			currentHeight = updateBlockService.checkBlock(currentBlock);
 			currentBlock = dccService.getBlock(currentHeight);
-
+			
 			if (currentBlock.has("nextblockhash")) {
 				updateBlockService.mergeBlock(currentBlock); // nextblockhash 업데이트
 

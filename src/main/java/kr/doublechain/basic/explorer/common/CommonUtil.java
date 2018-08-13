@@ -1,6 +1,7 @@
 package kr.doublechain.basic.explorer.common;
 
 import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -174,6 +175,7 @@ public class CommonUtil {
 		HashMap<String, Object> blockMap = gson.fromJson(block, HashMap.class);
 		return ((ArrayList<String>) blockMap.get("tx"));
 	}
+	
 	/**
 	 * JsonObject를 Object로 반환한다.
 	 * 
