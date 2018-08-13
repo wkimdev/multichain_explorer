@@ -113,7 +113,7 @@ public class DccService {
 		}
 	}
 	
-	/**
+	/**   
 	 * 트랜잭션 해쉬로 Data 가져오기
 	 */
 	public String getTxdata(String txHash, int n) throws Exception {
