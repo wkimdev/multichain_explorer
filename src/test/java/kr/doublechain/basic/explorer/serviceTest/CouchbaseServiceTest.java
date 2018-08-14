@@ -29,17 +29,23 @@ public class CouchbaseServiceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void upsertBucketTransactionTest() throws Exception {
 		couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
 	}
 	
-//	@Test
+	//@Test
 	public void selectLastBlockTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectLastBlock()));
 	}
 	
-//	@Test
+	@Test
+	public void selectBlockByTxIdTest() throws Exception {
+		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlockByTxId("\"10e0281aa1e254aacfc38ccfea9e9f8529c0235f071147e3e61bd8ba1a796dd6\"")));
+	}
+	
+	
+	//@Test
 	public void selectBlockTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlock(new BigInteger("0"))));
 	}
@@ -49,7 +55,7 @@ public class CouchbaseServiceTest {
 		couchbaseService.deleteBlock(new BigInteger("10"));
 	}
 	
-	@Test
+	//@Test
 	public void deleteTxTest() throws Exception {
 		couchbaseService.deleteTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d");
 	}

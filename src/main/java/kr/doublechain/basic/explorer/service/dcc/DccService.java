@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.code.RPCCommandCode;
@@ -42,6 +43,14 @@ public class DccService {
 	public JsonObject getInfo() throws Exception {
 		List<Object> list = new ArrayList<>();
 		return (JsonObject) RPCCall(RPCCommandCode.DCC_GETINFO.CODE, list);
+	}
+	
+	/**
+	 * 최신 블록 넘버 가져오기
+	 */
+	public BigInteger getBlockCount() throws Exception {
+		JsonElement jsonElement = (JsonElement) RPCCall(RPCCommandCode.DCC_GETBLOCKCOUNT.CODE, new ArrayList<>());
+		return jsonElement.getAsBigInteger();
 	}
 	
 	/**

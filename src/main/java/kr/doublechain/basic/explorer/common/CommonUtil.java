@@ -2,6 +2,7 @@ package kr.doublechain.basic.explorer.common;
 
 import java.util.ArrayList;
 
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,11 +19,11 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -31,6 +32,10 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 
+/**
+ * CommonUtil class
+ *
+ */
 @Component
 public class CommonUtil {
 
@@ -109,6 +114,30 @@ public class CommonUtil {
 	public static JsonObject convertGsonFromString(String jsonString) throws JsonProcessingException {
 		return new JsonParser().parse(jsonString).getAsJsonObject();
 	}
+	
+	/**
+	 * Json RPC로 받은 tx list를 List형태로 반환한다.
+	 * 
+	 * @param JsonObject
+	 * @return List<String>
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<String> getTxList(JsonObject block) {
+		Gson gson = new Gson();
+		HashMap<String, Object> blockMap = gson.fromJson(block, HashMap.class);
+		return ((ArrayList<String>) blockMap.get("tx"));
+	}
+	
+	/**
+	 * JsonObject를 Object로 반환한다.
+	 * 
+	 * @param JsonObject
+	 * @return Object
+	 */
+	public static Object convertObjectFromGson(JsonObject json) throws Exception {
+		JSONParser parser = new JSONParser();
+		return parser.parse(json.toString());
+	}
 
 	/**
 	 * block chain node connect url
@@ -160,31 +189,6 @@ public class CommonUtil {
 			return null;
 		}
 
-	}
-
-	
-	/**
-	 * Json RPC로 받은 tx list를 List형태로 반환한다.
-	 * 
-	 * @param JsonObject
-	 * @return List<String>
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<String> getTxList(JsonObject block) {
-		Gson gson = new Gson();
-		HashMap<String, Object> blockMap = gson.fromJson(block, HashMap.class);
-		return ((ArrayList<String>) blockMap.get("tx"));
-	}
-	
-	/**
-	 * JsonObject를 Object로 반환한다.
-	 * 
-	 * @param JsonObject
-	 * @return Object
-	 */
-	public static Object convertObjectFromGson(JsonObject json) throws Exception {
-		JSONParser parser = new JSONParser();
-		return parser.parse(json.toString());
 	}
 
 }

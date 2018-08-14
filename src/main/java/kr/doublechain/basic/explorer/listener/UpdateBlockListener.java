@@ -14,6 +14,10 @@ import com.google.gson.JsonObject;
 import kr.doublechain.basic.explorer.service.UpdateBlockService;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
+/**
+ * block을 다운받기 위한 listener
+ *
+ */
 @EnableAsync
 @Component
 public class UpdateBlockListener {
@@ -24,8 +28,8 @@ public class UpdateBlockListener {
 	@Autowired
 	UpdateBlockService updateBlockService;
 
-	@Async
-	@EventListener(ApplicationReadyEvent.class)
+//	@Async
+//	@EventListener(ApplicationReadyEvent.class)
 	public void start() throws Exception {
 		BigInteger currentHeight = null;
 		JsonObject currentBlock = updateBlockService.init();

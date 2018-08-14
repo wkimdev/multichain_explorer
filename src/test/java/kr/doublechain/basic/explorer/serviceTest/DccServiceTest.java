@@ -31,7 +31,12 @@ public class DccServiceTest {
 		}
 		System.out.println(new Gson().toJson(dccService.getInfo()));
 	}
-
+	
+	@Test
+	public void getBlockCountTest() throws Exception {
+		System.out.println(dccService.getBlockCount());
+	}
+	
 	//@Test
 	public void getBlockByHashTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
@@ -70,7 +75,7 @@ public class DccServiceTest {
 		System.out.println(dccService.RPCCall("publish", list));
 	}
 	
-	@Test
+	//@Test
 	public void getTxdataTest() throws Exception {
 		List<Object> list = new ArrayList<>();
 		list.add("9dc460ad46e4e0859c7fe411d5e9c9c37b6df3e21d0dfcb82839cf9199cf054d");

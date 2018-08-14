@@ -18,19 +18,11 @@ import kr.doublechain.basic.explorer.service.dcc.DccService;
 @Service("updateBlockService")
 public class UpdateBlockService {
 	
-	public static String chainName;
-
-	public static String genesisBlockHash;
-	
 	@Value("${dcc.chainname}")
-	public void setChainName(String chainName) {
-		UpdateBlockService.chainName = chainName;
-	}
+	public String chainName;
 
 	@Value("${dcc.genesisblockhash}")
-	public void setPort(String genesisBlockHash) {
-		UpdateBlockService.genesisBlockHash = genesisBlockHash;
-	}
+	public String genesisBlockHash;
 
 	@Autowired
 	private CouchbaseService couchbaseService;

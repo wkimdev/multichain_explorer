@@ -1,46 +1,147 @@
 package kr.doublechain.basic.explorer.contorller;
 
+import java.math.BigInteger;
+import java.util.List;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
+
+import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.service.CouchbaseService;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 /**
- * Dcc Block Controller
+ * Dcc API
+ * Block Controller
  *
  */
 @RestController
+@RequestMapping(value = "api")
 public class DccController {
 	
 	/**
-     * Service
+     * Dcc Node Service
      */
 	@Autowired
 	DccService dccService;
 	
 	/**
+     * Couchbase Service
+     */
+	@Autowired
+	CouchbaseService couchbaseService;
+	
+	/**
 	 * Dcc 노드 블록 정보 호출
 	 * @param 
+	 * @return String
+	 * @throws Exception
+	 */
+    @RequestMapping("/getinfo")
+    public String getBlockByHash() throws Exception {
+    	return CommonUtil.convertJsonStringFromGson(dccService.getInfo());
+    }
+    
+    /**
+	 * Search API 
+	 * @param 
+	 * @return Object
+	 * @throws Exception
+	 */
+    public Object searching() {
+    	return null;
+    }
+    
+    /**
+	 * Search By Blockhash 
+	 * @param blockhash
+	 * @return Object
+	 * @throws Exception
+	 */
+    @PostMapping(value="/search/blockhash")
+    @ResponseBody
+    public Object getBlockInfoByBlockhash(@RequestParam(value = "blockhash", required = true)String blockhash) throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByBlockhash(blockhash));
+    }
+    
+    /**
+	 * Search By Speeding Id 
+	 * @param txId
+	 * @return String
+	 * @throws Exception
+	 */
+    @PostMapping(value="/search/speedingId")
+    @ResponseBody
+    public Object getBlockInfoBySpeedingId(@RequestParam(value = "txId", required = true) String txId) throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByTxId(txId));
+    }	
+    
+    /**
+	 * Node로 부터 최신 블록 호출
+	 * @param 
+     * @return 
 	 * @return 
 	 * @throws Exception
 	 */
-    @RequestMapping("/api/getinfo")
-    public JsonObject getBlockByHash() throws Exception {
-    	return dccService.getInfo();
+    @RequestMapping("/latestBlocks")
+    @ResponseBody
+    public Object getLatestBlock() throws Exception{
+    	BigInteger blockNumber = dccService.getBlockCount();
+    	return CommonUtil.convertObjectFromGson(dccService.getBlock(blockNumber));
     }
     
-    // 2. 검색 API
-    // 4. lastblock 실시간 refresh
-    // 5. week speeding grapgh
-    // 7. 최근 생성 스피딩 정보 요약(실시간 리프레시)
+    /**
+	 * 최근 생성 블록 요약(7)
+	 * list를 어떻게 호출해야할지 고민 필요..
+	 * @param 
+     * @return 
+	 * @return 
+	 * @throws Exception
+	 */
+    @RequestMapping("/latestBlocks/lists")
+    @ResponseBody
+    public Object getLatestBlockList() throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByheight());
+    }
     
-//  @Autowired
-//	ExplorerService explorerService;
-//
-//	@Autowired
-//	btcTest btctest;
+    /**
+	 * 5. week speeding graph
+	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
+	 * 
+	 * @param 
+     * @return 
+	 * @return 
+	 * @throws Exception
+	 */
+    @RequestMapping("/graph")
+    @ResponseBody
+    public Object getWeekSpeeding() {
+    	return null;
+    }
+    
+    /**
+	 * 7. 최근 생성 스피딩 정보 요약(실시간 리프레시)
+	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
+	 * 
+	 * @param 
+     * @return 
+	 * @return 
+	 * @throws Exception
+	 */
+    @RequestMapping("/speedIdLists")
+    @ResponseBody
+    public Object getSpeedIdLists() {
+    	return null;
+    }
+    
 //
 //	@RequestMapping("/explorer")
 //	int startExplorer() throws Exception {
@@ -58,10 +159,12 @@ public class DccController {
 //	Map btc() throws Exception {
 //		return btctest.btcTest("getinfo", new ArrayList());
 //	}
+    
 //	@RequestMapping(value = "/btc/{apiName}", method = RequestMethod.GET)
 //	Map rpc(@PathVariable("apiName") String apiName) throws Exception {
 //		return btctest.btcTest(apiName, new ArrayList());
 //	}
+    
 //	@RequestMapping(value = "/btc/{apiName}/{param_1}", method = RequestMethod.GET)
 //	Map rpcwithParam_1(@PathVariable("apiName") String apiName, @PathVariable("param_1") String param_1) throws Exception {
 //		ArrayList params = new ArrayList();
