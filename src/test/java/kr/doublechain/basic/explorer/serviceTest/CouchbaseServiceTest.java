@@ -39,11 +39,16 @@ public class CouchbaseServiceTest {
 		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectLastBlock()));
 	}
 	
-	@Test
+	//@Test
 	public void selectBlockByTxIdTest() throws Exception {
 		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlockByTxId("\"10e0281aa1e254aacfc38ccfea9e9f8529c0235f071147e3e61bd8ba1a796dd6\"")));
 	}
 	
+	//json
+	@Test
+	public void selectBlockByheightTest() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight()));
+	}
 	
 	//@Test
 	public void selectBlockTest() throws Exception {
@@ -59,4 +64,5 @@ public class CouchbaseServiceTest {
 	public void deleteTxTest() throws Exception {
 		couchbaseService.deleteTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d");
 	}
+	
 }

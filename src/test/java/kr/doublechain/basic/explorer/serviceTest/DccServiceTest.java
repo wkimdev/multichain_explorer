@@ -32,7 +32,7 @@ public class DccServiceTest {
 		System.out.println(new Gson().toJson(dccService.getInfo()));
 	}
 	
-	@Test
+	//@Test
 	public void getBlockCountTest() throws Exception {
 		System.out.println(dccService.getBlockCount());
 	}
@@ -47,8 +47,9 @@ public class DccServiceTest {
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock(new BigInteger("0"))));
 	}
 	
-//	@Test
+	//@Test
 	public void getTxTest() throws Exception {
+		//이미지 쪽 받아오는거 수정
 		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d")));
 	}
 	

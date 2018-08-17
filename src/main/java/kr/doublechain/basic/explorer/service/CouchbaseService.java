@@ -2,6 +2,7 @@ package kr.doublechain.basic.explorer.service;
 
 import static com.couchbase.client.java.query.Select.select;
 
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -109,19 +110,30 @@ public class CouchbaseService {
      * select block info by height
      * limit 7
 	 */
-    public JsonObject selectBlockByheight() throws Exception {
+    public JSONArray selectBlockByheight() throws Exception {
     	Bucket bucket = connectBucket(blockBucketName);
     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT * FROM `" + blockBucketName + "` order by height desc limit 7 "));
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
-        while(result.hasNext()) {
-            N1qlQueryRow nqr = result.next();
-            jsonList.add(CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString()));
-        }
-        System.out.println(jsonList);
-        JsonObject newObject = new JsonObject();
-        newObject.addProperty("Blocks", jsonList.toJSONString());
-    	return newObject;
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
+    /**
+     * select Stream Data info by txId
+     * limit 7
+	 */
+    public JSONArray selectStreamByTxId() throws Exception {
+    	Bucket bucket = connectBucket(txBucketName);
+    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` order by txid desc limit 7 "));
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
     }
     
     public JsonObject selectBlock(BigInteger blockNumber) throws Exception {

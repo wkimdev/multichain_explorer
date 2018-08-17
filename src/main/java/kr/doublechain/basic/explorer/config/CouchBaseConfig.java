@@ -16,7 +16,7 @@ public class CouchBaseConfig {
 
     public @Bean Cluster cluster() {
         CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
-                .connectTimeout(10000) //10000ms = 10s, default is 5s
+                .connectTimeout(30000) 
                 .build();
         System.setProperty("com.couchbase.queryEnabled", "true");
         return CouchbaseCluster.create(env, bucketIp);

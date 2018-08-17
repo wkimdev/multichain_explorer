@@ -1,8 +1,6 @@
 package kr.doublechain.basic.explorer.common;
 
 import java.util.ArrayList;
-
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -135,6 +132,17 @@ public class CommonUtil {
 	 * @return Object
 	 */
 	public static Object convertObjectFromGson(JsonObject json) throws Exception {
+		JSONParser parser = new JSONParser();
+		return parser.parse(json.toString());
+	}
+	
+	/**
+	 * json simple library JSONArray를 Object로 반환한다.
+	 * 
+	 * @param JSONArray
+	 * @return Object
+	 */
+	public static Object convertObjectFromJSONArray(org.json.simple.JSONArray json) throws Exception {
 		JSONParser parser = new JSONParser();
 		return parser.parse(json.toString());
 	}

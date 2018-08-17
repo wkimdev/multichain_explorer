@@ -1,6 +1,7 @@
 package kr.doublechain.basic.explorer.contorller;
 
 import java.math.BigInteger;
+
 import java.util.List;
 
 import org.json.JSONObject;
@@ -40,7 +41,7 @@ public class DccController {
 	CouchbaseService couchbaseService;
 	
 	/**
-	 * Dcc 노드 블록 정보 호출
+	 * 0. Dcc 노드 블록 정보 호출
 	 * @param 
 	 * @return String
 	 * @throws Exception
@@ -51,7 +52,7 @@ public class DccController {
     }
     
     /**
-	 * Search API 
+	 * 2. Search API 
 	 * @param 
 	 * @return Object
 	 * @throws Exception
@@ -61,7 +62,7 @@ public class DccController {
     }
     
     /**
-	 * Search By Blockhash 
+	 * 2-1. Search By Blockhash 
 	 * @param blockhash
 	 * @return Object
 	 * @throws Exception
@@ -73,7 +74,7 @@ public class DccController {
     }
     
     /**
-	 * Search By Speeding Id 
+	 * 2-2. Search By Speeding Id 
 	 * @param txId
 	 * @return String
 	 * @throws Exception
@@ -81,11 +82,12 @@ public class DccController {
     @PostMapping(value="/search/speedingId")
     @ResponseBody
     public Object getBlockInfoBySpeedingId(@RequestParam(value = "txId", required = true) String txId) throws Exception{
+    	//return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByTxId(txId));
     	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByTxId(txId));
     }	
     
     /**
-	 * Node로 부터 최신 블록 호출
+	 * 4. Node로 부터 최신 블록 호출
 	 * @param 
      * @return 
 	 * @return 
@@ -99,8 +101,24 @@ public class DccController {
     }
     
     /**
-	 * 최근 생성 블록 요약(7)
+ 	 * 5. week speeding graph
+ 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
+ 	 * 
+ 	 * @param 
+      * @return 
+ 	 * @return 
+ 	 * @throws Exception
+ 	 */
+     @RequestMapping("/graph")
+     @ResponseBody
+     public Object getWeekSpeeding() {
+     	return null;
+     }
+    
+    /**
+	 * 6. 최근 생성 블록 요약(7)
 	 * list를 어떻게 호출해야할지 고민 필요..
+	 * issue
 	 * @param 
      * @return 
 	 * @return 
@@ -109,27 +127,12 @@ public class DccController {
     @RequestMapping("/latestBlocks/lists")
     @ResponseBody
     public Object getLatestBlockList() throws Exception{
-    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByheight());
+    	return CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight());
     }
-    
-    /**
-	 * 5. week speeding graph
-	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
-	 * 
-	 * @param 
-     * @return 
-	 * @return 
-	 * @throws Exception
-	 */
-    @RequestMapping("/graph")
-    @ResponseBody
-    public Object getWeekSpeeding() {
-    	return null;
-    }
+ 
     
     /**
 	 * 7. 최근 생성 스피딩 정보 요약(실시간 리프레시)
-	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
 	 * 
 	 * @param 
      * @return 
@@ -138,8 +141,8 @@ public class DccController {
 	 */
     @RequestMapping("/speedIdLists")
     @ResponseBody
-    public Object getSpeedIdLists() {
-    	return null;
+    public Object getSpeedIdLists() throws Exception{
+    	return CommonUtil.convertObjectFromJSONArray(couchbaseService.selectStreamByTxId());
     }
     
 //

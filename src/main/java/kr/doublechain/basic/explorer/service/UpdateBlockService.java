@@ -1,8 +1,9 @@
 package kr.doublechain.basic.explorer.service;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
-
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -125,7 +126,7 @@ public class UpdateBlockService {
 		
 		for (int i = 0; i < transactions.size(); i++) {
 			
-			JsonObject transaction = transactions.get(i).getAsJsonObject();
+			JsonObject transaction = removeHexByJsonObject(transactions.get(i).getAsJsonObject());
 			
 			transaction.add("height", block.get("height"));
 			transaction.add("blockhash", block.get("hash"));
@@ -172,7 +173,9 @@ public class UpdateBlockService {
 							item.addProperty("streamKeys", keys);
 							item.remove("keys");
 							
-							if (item.get("data").isJsonObject()) {
+							if (item.get("offchain").getAsBoolean()) {
+								
+							} else if (item.get("data").isJsonObject()) {
 								
 								if (item.getAsJsonObject("data").has("format")) {
 									
@@ -256,7 +259,7 @@ public class UpdateBlockService {
 				mergeBlock(currentBlock);
 				mergeTx(currentHeight);
 				System.out.println("Update Block : " + currentHeight);
-				Thread.sleep(50);
+//				Thread.sleep(50);
 			} else {
 				break;
 			}
@@ -301,5 +304,59 @@ public class UpdateBlockService {
 
 		return (genesisBlockHash.equals(dccService.getBlockHash(new BigInteger("0")))
 				&& chainName.equals(dccService.getInfo().get("chainname").getAsString()));
+	}
+	
+	/**
+	 * JsonArray에서 key가 hex 또는 asm인 데이터를 지운다.
+	 * 
+	 * @param JsonArray
+	 * @return JsonArray
+	 */
+	public JsonArray removeHexByJsonArray(JsonArray transaction) throws Exception {
+		
+		for (int i = 0; i < transaction.size(); i++) {
+			JsonElement je = transaction.get(i);
+			
+			if (je.isJsonObject()) {
+				transaction.set(i, removeHexByJsonObject(je.getAsJsonObject()));
+			} else if (je.isJsonArray()) {
+				transaction.set(i, removeHexByJsonArray(je.getAsJsonArray()));
+			} else if (je.isJsonPrimitive()) {
+				
+			}
+		}
+		return transaction;
+	}
+	
+	/**
+	 * JsonObject에서 key가 hex 또는 asm인 데이터를 지운다.
+	 * 
+	 * @param JsonObject
+	 * @return JsonObject
+	 */
+	public JsonObject removeHexByJsonObject(JsonObject transaction) throws Exception {
+					
+		if (transaction.has("hex")) {
+			transaction.remove("hex");
+		}
+		if (transaction.has("asm")) {
+			transaction.remove("asm");
+		}
+				
+		Set<String> keyset = transaction.keySet();
+		Iterator<String> iter = keyset.iterator();
+		while(iter.hasNext()){
+			String nextKey = iter.next();
+			JsonElement je = transaction.get(nextKey);
+			
+			if (je.isJsonArray()) {
+				transaction.add(nextKey, removeHexByJsonArray(je.getAsJsonArray()));
+			} else if (je.isJsonObject()) {
+				transaction.add(nextKey, removeHexByJsonObject(je.getAsJsonObject()));
+			} else if (je.isJsonPrimitive()) {
+				
+			}
+        }
+		return transaction;
 	}
 }

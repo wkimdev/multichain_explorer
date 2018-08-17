@@ -100,6 +100,7 @@ public class DccService {
 		List<Object> list = new ArrayList<>();
 		list.add(txHash);
 		list.add(1);
+		//hax assemble delete
 		return (JsonObject)RPCCall(RPCCommandCode.DCC_GETTRANSACTION.CODE, list);
 	}
 	
