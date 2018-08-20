@@ -238,13 +238,18 @@ public class UpdateBlockService {
 		}
 	}
 	
-
-	
+	/**
+	 * Node의 블록과 DB의 블록 정보를 비교하여 블록정보를 업데이트 시킨다.
+	 * 
+	 * @return JsonObject
+	 * @throws Exception
+	 */
 	public JsonObject init() throws Exception {
 		
 		BigInteger currentHeight = checkBlock();
 		JsonObject currentBlock = null;
 		
+		// 최신 블록 정보 호출
 		currentBlock = dccService.getBlock(currentHeight);			
 				
 		mergeBlock(currentBlock);

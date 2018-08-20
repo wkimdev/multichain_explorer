@@ -133,5 +133,4 @@ public class DccService {
 		return RPCCall(RPCCommandCode.DCC_GETTXDATA.CODE, list);
 	}
 
-	
 }

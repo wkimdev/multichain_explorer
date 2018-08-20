@@ -27,7 +27,14 @@ public class UpdateBlockListener {
 
 	@Autowired
 	UpdateBlockService updateBlockService;
-
+	
+	/**
+	 * Node에서 블록정보를 불러와 db에 update 
+	 * TODO scheduler 적용하기.
+	 * 
+	 * @return void
+	 * @throws Exception
+	 */
 //	@Async
 //	@EventListener(ApplicationReadyEvent.class)
 	public void start() throws Exception {

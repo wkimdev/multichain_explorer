@@ -1,6 +1,8 @@
 package kr.doublechain.basic.explorer.serviceTest;
 
 import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,12 +42,6 @@ public class CouchbaseServiceTest {
 	}
 	
 	//@Test
-	public void selectBlockByTxIdTest() throws Exception {
-		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlockByTxId("\"10e0281aa1e254aacfc38ccfea9e9f8529c0235f071147e3e61bd8ba1a796dd6\"")));
-	}
-	
-	//json
-	@Test
 	public void selectBlockByheightTest() throws Exception {
 		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight()));
 	}
@@ -63,6 +59,48 @@ public class CouchbaseServiceTest {
 	//@Test
 	public void deleteTxTest() throws Exception {
 		couchbaseService.deleteTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d");
+	}
+	
+	//@Test
+	public void selectCurrentTimeSeedingCnt() throws Exception {
+		System.out.println(couchbaseService.selectBlockSpeedingCntByDate()); 
+	}
+	
+	//@Test
+	public void selectLatestBlockCntSpeeding() throws Exception {
+		System.out.println(couchbaseService.selectLatestBlockCntSpeeding()); 
+	}
+	
+	@Test
+	public void currentTime() throws Exception{
+		Calendar cal = Calendar.getInstance();
+		Date date = new Date();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, -1);
+		long pastTime = cal.getTimeInMillis()/1000;
+		
+		long currentTime = System.currentTimeMillis()/1000;
+		Date date2 = new Date();
+		date2.setTime((long)currentTime*1000);
+		
+		System.out.println("14일전 유닉스 : "+pastTime+" 타임 : "+cal.getTime());
+		System.out.println("현재시간 유닉스 :"+currentTime+" 타임 : "+date2);
+	}
+	
+	//@Test
+	public void currentTime2() throws Exception{
+		long currentTime = System.currentTimeMillis()/1000;
+		Date date2 = new Date();
+		date2.setTime((long)currentTime*1000);
+		
+	}
+	
+	//@Test //search
+	public void selectSearch() throws Exception {
+		//52f69ef0ba0c75cc9fc3cb4da6204a78065029aa43c597af4b8a2f6696b687fa
+		//008e581ce004414376ede53a695f6de52cff0479c7e84b9260995811eef67856
+		//"1887"
+		System.out.println(couchbaseService.selectBlockBySearch("1102"));
 	}
 	
 }

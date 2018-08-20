@@ -7,6 +7,7 @@ import java.util.List;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,52 +53,40 @@ public class DccController {
     }
     
     /**
-	 * 2. Search API 
+	 * 2. Search API - 검색어(block number or txId)
+	 *  
 	 * @param 
 	 * @return Object
 	 * @throws Exception
 	 */
-    public Object searching() {
-    	return null;
+    @PostMapping(value="/search")
+    @ResponseBody
+    public Object searching(@RequestParam(value = "search", required = true)String search) throws Exception {
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockBySearch(search));
     }
     
     /**
-	 * 2-1. Search By Blockhash 
-	 * @param blockhash
-	 * @return Object
+	 * 4-1. 최근 마지막 생성 블록과, 포함된 speeding count. 
+	 * 
+	 * @return Object 
 	 * @throws Exception
 	 */
-    @PostMapping(value="/search/blockhash")
-    @ResponseBody
-    public Object getBlockInfoByBlockhash(@RequestParam(value = "blockhash", required = true)String blockhash) throws Exception{
-    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByBlockhash(blockhash));
-    }
-    
-    /**
-	 * 2-2. Search By Speeding Id 
-	 * @param txId
-	 * @return String
-	 * @throws Exception
-	 */
-    @PostMapping(value="/search/speedingId")
-    @ResponseBody
-    public Object getBlockInfoBySpeedingId(@RequestParam(value = "txId", required = true) String txId) throws Exception{
-    	//return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByTxId(txId));
-    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockByTxId(txId));
-    }	
-    
-    /**
-	 * 4. Node로 부터 최신 블록 호출
-	 * @param 
-     * @return 
-	 * @return 
-	 * @throws Exception
-	 */
-    @RequestMapping("/latestBlocks")
+    @GetMapping(value ="/blocks/latest")
     @ResponseBody
     public Object getLatestBlock() throws Exception{
-    	BigInteger blockNumber = dccService.getBlockCount();
-    	return CommonUtil.convertObjectFromGson(dccService.getBlock(blockNumber));
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectLatestBlockCntSpeeding());
+    }
+    
+    /**
+	 * 4-2. 현재날짜기준. 생성 블록에 포함된 speeding count.
+	 * 
+	 * @return Object 
+	 * @throws Exception
+	 */
+    @GetMapping(value ="/blocks/current")
+    @ResponseBody
+    public Object getLatestBlockByCuttent() throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockSpeedingCntByDate());
     }
     
     /**
@@ -105,7 +94,6 @@ public class DccController {
  	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
  	 * 
  	 * @param 
-      * @return 
  	 * @return 
  	 * @throws Exception
  	 */
@@ -117,8 +105,7 @@ public class DccController {
     
     /**
 	 * 6. 최근 생성 블록 요약(7)
-	 * list를 어떻게 호출해야할지 고민 필요..
-	 * issue
+	 * 
 	 * @param 
      * @return 
 	 * @return 
@@ -127,6 +114,7 @@ public class DccController {
     @RequestMapping("/latestBlocks/lists")
     @ResponseBody
     public Object getLatestBlockList() throws Exception{
+    	// TODO 유닉스 타임 형변환.
     	return CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight());
     }
  
@@ -174,6 +162,7 @@ public class DccController {
 //		params.add(param_1);
 //		return btctest.btcTest(apiName, params);
 //	}
+    
 //	@RequestMapping(value = "/btc/{apiName}/{param_1}/{param_2}", method = RequestMethod.GET)
 //	Map rpcwithParam_2(@PathVariable("apiName") String apiName, @PathVariable("param_1") String param_1, @PathVariable("param_2") int param_2) throws Exception {
 //		ArrayList params = new ArrayList();
