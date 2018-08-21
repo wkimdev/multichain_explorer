@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)

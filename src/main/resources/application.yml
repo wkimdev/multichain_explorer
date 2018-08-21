@@ -1,0 +1,82 @@
+#spring profiles : LOCAL
+#spring  setup and common configuration
+spring:
+  profiles:
+    active: local
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: "true"
+    converters:
+      preferred-json-mapper: jackson
+  jmx:
+    default-domain: datasource_home
+  mvc:
+    locale: en
+    favicon:
+      enabled: "false"
+    servlet:
+      load-on-startup: "-1"
+  jackson:
+    default-property-inclusion: NON_NULL
+  session:
+    store-type: none
+    
+# tomcat
+# was port override set vm option : -Dserver.port=8080    
+server:
+  port: "8081"
+  servlet-path: /
+  compression:
+    enabled: "true"
+    min-response-size: "1"
+  tomcat:
+    uri-encoding: UTF-8
+
+#api version
+api:
+  contextRoot: /v1
+  version: v1
+
+#company mark up
+company:
+  host:
+    name: 'http://www.doublechain.co.kr'  
+    
+#logging    
+logging:
+  level:
+    root: ERROR
+    org:
+      springframework:
+        web: INFO
+    io:
+      hdac:
+        ico: DEBUG
+    com:
+      zaxxer:
+        hikari: INFO
+        
+#dcc node setup        
+dcc:
+  user: multichainrpc
+  password: dc!393939
+  port: "4444"
+  chainname: exco
+  genesisblockhash: '"0040493c439b9b41df8c85cf2934769503911da0195e95ff2b2445c774350a36"'
+  host: 192.168.0.225
+  
+#couchbase setup    
+couchbase: 
+  bucket:
+    blocks:
+      name: Blocks
+    txs:
+      name: Transactions
+    streams:
+      name: Streams
+    name: Explorer
+    expiry: ""
+    user: jsg0212
+    password: dc393939
+    ip: 192.168.0.145  

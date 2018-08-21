@@ -1,6 +1,8 @@
-package kr.doublechain.basic.explorer.common;
+package kr.doublechain.basic.explorer.common.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,6 +30,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import kr.doublechain.basic.explorer.common.vo.DccResponse;
+import kr.doublechain.basic.explorer.common.vo.Header;
+import kr.doublechain.basic.explorer.common.vo.Meta;
 
 /**
  * CommonUtil class
@@ -35,6 +40,28 @@ import com.google.gson.reflect.TypeToken;
  */
 @Component
 public class CommonUtil {
+	
+	/**
+	 * 포맷 패턴으로 현재 시간을 스트링으로 변환한다.
+	 * @param formatPattern
+	 * @return String
+	 */
+	public static String makeCurrentDateCustomFormat(String formatPattern) {
+		Date current = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat(formatPattern);
+		return sdf.format(current);
+	}
+	
+	/**
+	 * Controller Respose Util
+	 * @param header
+	 * @param valueObject
+	 * @param meta
+	 * @return DccResponse<T>
+	 */
+	public static <T> DccResponse<T> Response(Header header, T valueObject, Meta meta) {
+		return new DccResponse<T>().setHeader(header).setData(valueObject).setMeta(meta);
+	}
 
 	/**
 	 * Object convert to json String

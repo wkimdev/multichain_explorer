@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 /**

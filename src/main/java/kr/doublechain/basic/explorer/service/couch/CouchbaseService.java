@@ -1,4 +1,4 @@
-package kr.doublechain.basic.explorer.service;
+package kr.doublechain.basic.explorer.service.couch;
 
 import static com.couchbase.client.java.query.Select.select;
 
@@ -22,7 +22,7 @@ import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.dsl.Sort;
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 
 
 /**
@@ -72,15 +72,18 @@ public class CouchbaseService {
     
     /**
 	 * 2. 검색(block number or txId)
+	 * TODO null일 경우 exception 처리
 	 * 
 	 * @param search
 	 * @return JsonObject
 	 * @throws Exception
 	 */
     public JsonObject selectBlockBySearch(String search) throws Exception {
+    	int key = 0; //1 = streamBucket, 2 = blockbucket
     	
     	JsonObject jsonObject = null;
     	if (search.length() == 64) {
+    		key = 1;
     		// it's a transaction id(=speeding id, txid, tx)
     		Bucket streambucket = connectBucket(streamBucketName);
     		N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE txid = \"" + search + "\""));
@@ -88,9 +91,11 @@ public class CouchbaseService {
     		while(result.hasNext()) {
               N1qlQueryRow nqr = result.next();
               jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+              
           }
     	} else {
 			// it's a block number
+    		key = 2;
     		Bucket blockbucket = connectBucket(blockBucketName);
     		int searchNumber = Integer.parseInt(search);
     		N1qlQueryResult query = blockbucket.query(N1qlQuery.simple("SELECT * FROM `" + blockBucketName + "` WHERE height = " + searchNumber + ""));
@@ -100,6 +105,7 @@ public class CouchbaseService {
               jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
           }
 		}
+    	jsonObject.addProperty("searchKey", key);
     	return jsonObject;
     }
     
@@ -144,13 +150,13 @@ public class CouchbaseService {
     
     /**
      * 5. 2주간 발생된 일별 과속단속 카메라 촬영 건수.
-     * 일별 stream count를 시키기.
+     * TODO 일별 stream count를 시키기.
      * 
      * @return JsonObject
      * @throws Exception
      */
     public JsonObject selectTwoWeeksSpeedCnt() throws Exception {
-    	Bucket bucket = connectBucket(blockBucketName);
+    	Bucket bucket = connectBucket(streamBucketName);
     	Calendar cal = Calendar.getInstance();
 		Date date = new Date();
 		cal.setTime(date);
@@ -161,9 +167,17 @@ public class CouchbaseService {
 		Date date2 = new Date();
 		date2.setTime((long)currentTime*1000);
 		
-    	// SELECT * from Streams where time between 1534232726 and 1534232740 and name = "IoT" and streamKeys = "\"jsonrpc\"";
-		//SELECT count(*) as cnt from Streams where time between 1533548084 and 1534757684 and name = "IoT" and streamKeys = "\"jsonrpc\"";
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT array_count(tx) AS tx From `" + blockBucketName + "` WHERE time = " + currentTime +" "));
+		/*
+		 * 
+		 * 2주 간격은 동적으로 바뀌고, 거기에 따른 일별 데이터도 동적으로 바뀐다. 현재 동일 날짜만 존재함.
+		 * 
+		 * select count(txid) as txCnt from Streams where time between 1534412341 and 1534412538  
+			  union all  
+			select count(txid) as txCnt from Streams where time between 1534412337 and 1534412520 
+			  union all  
+			select count(txid) as txCnt from Streams where time between 1534412320 and 1534412510;
+		 * */
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(*) as cnt from `" + streamBucketName + "` where time between 1533548084 and 1534757684 and name = \"IoT\" and streamKeys = \"\\\"jsonrpc\\\"\";"));
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JsonObject jsonObject = new JsonObject();
     	try {
@@ -178,6 +192,7 @@ public class CouchbaseService {
     /**
 	 * 6. 최근 생성 블록 요약(7)
 	 * select block info by height limit 7
+	 * TODO date format 변경가능
 	 * 
 	 * @param 
      * @return 
@@ -197,8 +212,7 @@ public class CouchbaseService {
     
     /**
 	 * 7. 최근 생성 스피딩 정보 요약(실시간 리프레시)
-	 * select Stream Data info by txId limit 7
-	 * TODO order by 명확하게 하
+	 * select Stream Data info by block height limit 7
 	 * 
 	 * @param 
      * @return 
@@ -206,15 +220,36 @@ public class CouchbaseService {
 	 * @throws Exception
 	 */
     public JSONArray selectStreamByTxId() throws Exception {
-    	Bucket bucket = connectBucket(txBucketName);
-    	// SELECT time, txid, data.json.overspeed FROM Streams where time between 1534233460 and 1534233500;
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` order by txid desc limit 7 "));
+    	Bucket bucket = connectBucket(streamBucketName);
+    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.overspeed FROM `" + streamBucketName + "` order by height desc limit 10 "));
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
     		jsonList.add(result.next());
     	}
     	return jsonList;
+    }
+    
+    /**
+	 * 8. txid에 대한 컨펌숫자
+	 * 
+	 * @param 
+     * @return 
+	 * @return 
+	 * @throws Exception
+	 */
+    public JsonObject selectConfirmCntByTxId(String txid) throws Exception {
+    	Bucket bucket = connectBucket(txBucketName);
+    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT confirmations FROM `" + txBucketName + "` WHERE txid = \"" + txid + "\""));
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JsonObject jsonObject = new JsonObject();
+    	try {
+    		N1qlQueryRow nqr = result.next();
+        	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	return jsonObject;
     }
     
     public JsonObject selectBlock(BigInteger blockNumber) throws Exception {

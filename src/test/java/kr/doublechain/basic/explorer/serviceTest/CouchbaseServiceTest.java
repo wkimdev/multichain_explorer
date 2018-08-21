@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import kr.doublechain.basic.explorer.common.CommonUtil;
-import kr.doublechain.basic.explorer.service.CouchbaseService;
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
+import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)

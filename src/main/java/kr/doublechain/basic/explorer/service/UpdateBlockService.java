@@ -13,9 +13,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.common.CommonUtil;
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
+import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
+/**
+ * UpdateBlockService
+ * 
+ */
 @Service("updateBlockService")
 public class UpdateBlockService {
 	
