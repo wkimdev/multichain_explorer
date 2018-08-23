@@ -1,5 +1,7 @@
 package kr.doublechain.basic.explorer.common.vo;
 
+import org.springframework.http.HttpStatus;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
@@ -14,7 +16,7 @@ import lombok.experimental.Accessors;
 public class Header {
 	
 	@ApiModelProperty(value = "code")
-	private String code = "";
+	private Integer code;
 	
 	@ApiModelProperty(value = "message")
 	private String message = "";

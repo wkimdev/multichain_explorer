@@ -1,25 +1,21 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * StreamVO
+ * SpeedDataVO from StreamVO
  *
  */
 @Getter
 @Setter
-public class StreamVO {
-		
-	/**
-	 * createtxid
-	 */
-	private String createtxid;
+public class SpeedDataVO {
 	
 	/**
-	 * 구분 key
+	 * finiger stream의 jsonObject data
+	 *
 	 */
-	private int key;
-	
+	private SpeedJsonVO json;
 	
 }

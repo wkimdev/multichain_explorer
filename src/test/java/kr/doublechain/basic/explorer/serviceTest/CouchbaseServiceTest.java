@@ -71,7 +71,7 @@ public class CouchbaseServiceTest {
 		System.out.println(couchbaseService.selectLatestBlockCntSpeeding()); 
 	}
 	
-	@Test
+	//@Test
 	public void currentTime() throws Exception{
 		Calendar cal = Calendar.getInstance();
 		Date date = new Date();
@@ -95,12 +95,12 @@ public class CouchbaseServiceTest {
 		
 	}
 	
-	//@Test //search
+	@Test //search
 	public void selectSearch() throws Exception {
 		//52f69ef0ba0c75cc9fc3cb4da6204a78065029aa43c597af4b8a2f6696b687fa
 		//008e581ce004414376ede53a695f6de52cff0479c7e84b9260995811eef67856
 		//"1887"
-		System.out.println(couchbaseService.selectBlockBySearch("1102"));
+		System.out.println(couchbaseService.selectFingerPrintBySearch("214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f"));
 	}
 	
 }

@@ -23,10 +23,26 @@ import com.couchbase.client.java.query.dsl.Sort;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
 
 
 /**
  * CouchbaseService
+ *
+ */
+/**
+ * 
+ * created by wkimdev
+ *
+ */
+/**
+ * 
+ * created by wkimdev
+ *
+ */
+/**
+ * 
+ * created by wkimdev
  *
  */
 @Service("couchbaseService")
@@ -71,43 +87,85 @@ public class CouchbaseService {
     }
     
     /**
-	 * 2. 검색(block number or txId)
-	 * TODO null일 경우 exception 처리
+	 * Speeding Stream 검색
 	 * 
 	 * @param search
 	 * @return JsonObject
 	 * @throws Exception
 	 */
-    public JsonObject selectBlockBySearch(String search) throws Exception {
-    	int key = 0; //1 = streamBucket, 2 = blockbucket
-    	
-    	JsonObject jsonObject = null;
-    	if (search.length() == 64) {
-    		key = 1;
-    		// it's a transaction id(=speeding id, txid, tx)
-    		Bucket streambucket = connectBucket(streamBucketName);
-    		N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE txid = \"" + search + "\""));
-    		Iterator<N1qlQueryRow> result = query.iterator();
-    		while(result.hasNext()) {
-              N1qlQueryRow nqr = result.next();
-              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-              
-          }
-    	} else {
-			// it's a block number
-    		key = 2;
-    		Bucket blockbucket = connectBucket(blockBucketName);
-    		int searchNumber = Integer.parseInt(search);
-    		N1qlQueryResult query = blockbucket.query(N1qlQuery.simple("SELECT * FROM `" + blockBucketName + "` WHERE height = " + searchNumber + ""));
-    		Iterator<N1qlQueryRow> result = query.iterator();
-    		while(result.hasNext()) {
-              N1qlQueryRow nqr = result.next();
-              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
-          }
-		}
-    	jsonObject.addProperty("searchKey", key);
-    	return jsonObject;
-    }
+     public JsonObject selectSpeedBySearch(String search) throws Exception {
+    	  JsonObject jsonObject = null;
+    	  Bucket streambucket = connectBucket(streamBucketName);
+    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" and txid = \"" + search + "\""));
+    	  Iterator<N1qlQueryRow> result = query.iterator();
+    	  
+    	  while(result.hasNext()) {
+            N1qlQueryRow nqr = result.next();
+            jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+    	  }
+    	  return jsonObject;
+      }
+     
+     /**
+ 	 * fingerPrint Stream 검색
+ 	 * 
+ 	 * @param search
+ 	 * @return JsonObject
+ 	 * @throws Exception
+ 	 */
+      public JsonObject selectFingerPrintBySearch(String search) throws Exception {
+     	  JsonObject jsonObject = null;
+     	  Bucket streambucket = connectBucket(streamBucketName);
+     	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
+     	  Iterator<N1qlQueryRow> result = query.iterator();
+     	  
+     	  while(result.hasNext()) {
+             N1qlQueryRow nqr = result.next();
+             jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+     	  }
+     	  return jsonObject;
+       }
+    
+      
+//    익스플로러 기획서 수정전 검색 메서드.(2018.8.22)
+//    /**
+//     * @param search
+//     * @return
+//     * @throws Exception
+//     */
+//    public JsonObject selectBlockBySearch(String search) throws Exception {
+//    	int key = 0; //1 = streamBucket, 2 = blockbucket
+//    	
+//    	JsonObject jsonObject = null;
+//    	if (search.length() == 64) {
+//    		key = 1;
+//    		// it's a transaction id(=speeding id, txid, tx)
+//    		Bucket streambucket = connectBucket(streamBucketName);
+//    		N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE txid = \"" + search + "\""));
+//    		Iterator<N1qlQueryRow> result = query.iterator();
+//    		while(result.hasNext()) {
+//              N1qlQueryRow nqr = result.next();
+//              
+//              // 최상의 valueObject로 던져주는 곳에 맵핑.
+//              // StreamVO streamVO = streamVO();
+//              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+//              //CommonUtil.checkValueObject(jsonObject, StreamVO.class);
+//          }
+//    	} else {
+//			// it's a block number
+//    		key = 2;
+//    		Bucket blockbucket = connectBucket(blockBucketName);
+//    		int searchNumber = Integer.parseInt(search);
+//    		N1qlQueryResult query = blockbucket.query(N1qlQuery.simple("SELECT * FROM `" + blockBucketName + "` WHERE height = " + searchNumber + ""));
+//    		Iterator<N1qlQueryRow> result = query.iterator();
+//    		while(result.hasNext()) {
+//              N1qlQueryRow nqr = result.next();
+//              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
+//          }
+//		}
+//    	jsonObject.addProperty("searchKey", key);
+//    	return jsonObject;
+//    }
     
     /**
      * 4-1. 최근 마지막 생성 블록에 포함된 Speeding 개수

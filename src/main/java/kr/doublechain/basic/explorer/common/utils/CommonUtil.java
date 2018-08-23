@@ -30,6 +30,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import kr.doublechain.basic.explorer.common.vo.DccError;
 import kr.doublechain.basic.explorer.common.vo.DccResponse;
 import kr.doublechain.basic.explorer.common.vo.Header;
 import kr.doublechain.basic.explorer.common.vo.Meta;
@@ -102,7 +103,47 @@ public class CommonUtil {
 		T object = mapper.readValue(content, clazz);
 		return object;
 	}
-
+	
+	/**
+	 * Controller Respose Error Util
+	 * @param statusCode
+	 * @param message
+	 * @return DccResponse<DccError>
+	 */
+	public static <T> DccResponse<T> ResponseErrorWithType(DccError dccError, T valueObject) {
+		return new DccResponse<T>().setError(dccError).setData(valueObject);
+	}
+	
+	/**
+	 * Controller Respose Error Util
+	 * @param statusCode
+	 * @param message
+	 * @return DccResponse<DccError>
+	 */
+	public static DccResponse<DccError> ResponseError(DccError dccError) {
+		return new DccResponse<DccError>().setError(dccError);
+	}
+	
+	/**
+	 * check Value Object
+	 * @param valueObject
+	 * @param clazz
+	 * @return T
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	public static <T> T checkValueObject(T valueObject, Class<T> clazz) {
+		if(valueObject == null) {
+			try {
+				T object = (T) clazz.newInstance();
+				return object;
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return valueObject;
+	}
+	
 	/**
 	 * Gson을 사용한 타입 캐스트 변환
 	 * 

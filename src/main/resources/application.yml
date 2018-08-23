@@ -46,16 +46,10 @@ company:
 #logging    
 logging:
   level:
-    root: ERROR
+    root: INFO
     org:
       springframework:
-        web: INFO
-    io:
-      hdac:
-        ico: DEBUG
-    com:
-      zaxxer:
-        hikari: INFO
+        web: DEBUG
         
 #dcc node setup        
 dcc:
