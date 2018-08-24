@@ -3,6 +3,8 @@ package kr.doublechain.basic.explorer.serviceTest;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
+import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)
@@ -63,12 +68,12 @@ public class CouchbaseServiceTest {
 	
 	//@Test
 	public void selectCurrentTimeSeedingCnt() throws Exception {
-		System.out.println(couchbaseService.selectBlockSpeedingCntByDate()); 
+		//System.out.println(couchbaseService.selectBlockSpeedingCntByDate()); 
 	}
 	
 	//@Test
 	public void selectLatestBlockCntSpeeding() throws Exception {
-		System.out.println(couchbaseService.selectLatestBlockCntSpeeding()); 
+		//System.out.println(couchbaseService.selectLatestBlockCntSpeeding()); 
 	}
 	
 	//@Test
@@ -95,12 +100,32 @@ public class CouchbaseServiceTest {
 		
 	}
 	
-	@Test //search
+	//@Test 
 	public void selectSearch() throws Exception {
+		//search
 		//52f69ef0ba0c75cc9fc3cb4da6204a78065029aa43c597af4b8a2f6696b687fa
 		//008e581ce004414376ede53a695f6de52cff0479c7e84b9260995811eef67856
 		//"1887"
 		System.out.println(couchbaseService.selectFingerPrintBySearch("214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f"));
 	}
+	
+	@Test
+	public void selectStreamByFingerPrint() throws Exception {
+		// array 두개..
+		
+		String test = "[{\"height\":2124,\"txid\":\"f6af76c8bcd4eb586716c2b6f965d874c93977dfd9477d1441bd31bbf5a497d8\",\"who\":\"KW\"},{\"height\":2116,\"txid\":\"214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f\",\"who\":\"Jeongwon\"},{\"height\":2106,\"txid\":\"ab1b30b7be916591191d0e3ef4bbaaa3256e4d228b11dbd92469864478b97ea7\",\"who\":\"Seongkuk\"}]";
+		
+		FPrintListVO vo = new FPrintListVO(); 
+		ObjectMapper mapper = new ObjectMapper();
+		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
+		
+		System.out.println(list);
+//			List<HashMap> list1 = mapper.readValue(content, clazz);
+//			HashMap map list2 = list1.get(0);
+//			return object;
+		
+		//System.out.println(couchbaseService.selectStreamByFingerPrint());
+	}
+	
 	
 }

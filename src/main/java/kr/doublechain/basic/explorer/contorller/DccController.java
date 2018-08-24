@@ -1,5 +1,9 @@
 package kr.doublechain.basic.explorer.contorller;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
@@ -22,6 +27,7 @@ import kr.doublechain.basic.explorer.common.vo.DccResponse;
 import kr.doublechain.basic.explorer.common.vo.Header;
 import kr.doublechain.basic.explorer.common.vo.Meta;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
+import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
@@ -106,65 +112,33 @@ public class DccController {
 	}
 	
     /**
-	 * 4-1. 최근 마지막 생성 블록과, 포함된 speeding count. 
+	 * 현재날짜기준. Stream에 포함된 speeding count.
 	 * 
 	 * @return Object 
 	 * @throws Exception
 	 */
-	@ApiOperation(value = "마지막 생성된 블록", notes = "최근 마지막 생성 블록과, 포함된 speeding count.")
-    @GetMapping(value ="/blocks/latest")
+	@ApiOperation(value = "금일 생성된 스피딩 스트림 카운트", notes = "현재날짜기준. 생성 스트림에 포함된 speeding count.")
+    @GetMapping(value ="/speedCnts/current")
     @ResponseBody
-    public Object getLatestBlock() throws Exception {
-    	return CommonUtil.convertObjectFromGson(couchbaseService.selectLatestBlockCntSpeeding());
+    public Object getSpeedCnyByCurrent() throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent());
     }
-    
+	
     /**
-	 * 4-2. 현재날짜기준. 생성 블록에 포함된 speeding count.
+	 * 현재날짜기준. Stream에 포함된 fingerPrint count.
 	 * 
 	 * @return Object 
 	 * @throws Exception
 	 */
-	@ApiOperation(value = "금일 생성된 블록", notes = "현재날짜기준. 생성 블록에 포함된 speeding count.")
-    @GetMapping(value ="/blocks/current")
+	@ApiOperation(value = "금일 생성된 지문 스트림 카운트", notes = "현재날짜기준. 생성 스트림에 포함된 fingerPrint count.")
+    @GetMapping(value ="/fingerPrintCnts/current")
     @ResponseBody
-    public Object getLatestBlockByCuttent() throws Exception{
-    	return CommonUtil.convertObjectFromGson(couchbaseService.selectBlockSpeedingCntByDate());
+    public Object getFingerPrintCnyByCurrent() throws Exception{
+    	return CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
     }
-    
+	
     /**
- 	 * 5. week speeding graph
- 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
- 	 * 
- 	 * @param 
- 	 * @return 
- 	 * @throws Exception
- 	 */
-	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프 데이터.")
-     @RequestMapping("/blocks/graph")
-     @ResponseBody
-     public Object getWeekSpeeding() throws Exception{
-     	return CommonUtil.convertObjectFromGson(couchbaseService.selectTwoWeeksSpeedCnt());
-     }
-    
-    /**
-	 * 6. 최근 생성 블록 요약(7)
-	 * 
-	 * @param 
-     * @return 
-	 * @return 
-	 * @throws Exception
-	 */
-	@ApiOperation(value = "최근 생성 블록 요약", notes = "최근 생성된 블록 상세 정보 (리스트 7개 호출).")
-    @RequestMapping("/latestBlocks/lists")
-    @ResponseBody
-    public Object getLatestBlockList() throws Exception{
-    	// TODO 유닉스 타임 형변환.
-    	return CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight());
-    }
- 
-    
-    /**
-	 * 7. 최근 생성 스피딩 정보 요약(10)
+	 * 최근 생성 스피딩 정보 요약
 	 * 
 	 * @param 
      * @return 
@@ -172,41 +146,73 @@ public class DccController {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "최근 생성 스피딩 정보", notes = "최근 생성된 스피딩 상세 정보 (리스트 10개 호출).")
-    @RequestMapping("/speeding/lists")
+    @RequestMapping("/speeds/lists")
     @ResponseBody
     public DccResponse<SpeedVO> getSpeedIdLists() throws Exception{
 		
 		Header header = new Header();
 		Meta meta = new Meta();
 		
-		JSONArray jsonArray = couchbaseService.selectStreamByTxId();
+		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
 		SpeedVO speedVO = CommonUtil.convertObjectFromJsonString(jsonArray.toString(), SpeedVO.class);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
     	return CommonUtil.Response(header, speedVO, meta);
     }
-    
+	
     /**
-	 * Speeding Stream의 txid에 대한 컨펌숫자 
+	 * 최근 생성 지문 정보 요약
 	 * 
 	 * @param 
      * @return 
 	 * @return 
 	 * @throws Exception
 	 */
-//	@ApiOperation(value = "블록 컨펌 수", notes = "speeding id에 대한 블록 컨펌 수.")
-//    @GetMapping("/confirmations/{txid}")
-//    @ResponseBody
-//    public DccResponse<StreamVO> getConfirmCnt(@PathVariable("txid")String txid) throws Exception{
-//		
-//		JsonObject jsonObject = couchbaseService.selectBlockBySearch(txid);
-//		StreamVO streamVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), StreamVO.class);
-//		
-//		Header header = new Header();
-//		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-//		
-//    	return CommonUtil.Response(new Header(), streamVO, new Meta());
-//	
-//    }
-
+	@ApiOperation(value = "최근 생성 지문 정보", notes = "최근 생성된 스피딩 상세 정보 (리스트 10개 호출).")
+    @RequestMapping("/fingerPrints/lists")
+    @ResponseBody
+    public DccResponse<FPrintListVO> getFingerPrintIdLists() throws Exception{
+		
+		Header header = new Header();
+		Meta meta = new Meta();
+		
+		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint();
+		FPrintListVO vo = new FPrintListVO(); 
+		ObjectMapper mapper = new ObjectMapper();
+		
+		System.out.println("=====================================================");
+		System.out.println(jsonArray.toString());
+		LOG.info(jsonArray.toString());
+		List<FPrintListVO.DataResponse> list = mapper.readValue(jsonArray.toString(), List.class);
+		
+		//FPrintListVO fPrintListVO = CommonUtil.convertObjectFromString(list.toString(), FPrintListVO.class);
+		
+		FPrintListVO fPrintListVO = new FPrintListVO(); 
+//		ObjectMapper mapper = new ObjectMapper();
+//		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
+		
+		
+//		JsonObject jsonObject = couchbaseService.selectFingerPrintBySearch(search);
+//		FingerPrintVO fingerPrintVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), FingerPrintVO.class);
+		
+		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
+    	return CommonUtil.Response(header, fPrintListVO, meta);
+    }
+	
+    
+    /**
+ 	 * week speeding graph
+ 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
+ 	 * 
+ 	 * @param 
+ 	 * @return 
+ 	 * @throws Exception
+ 	 */
+//	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프 데이터.")
+//     @RequestMapping("/blocks/graph")
+//     @ResponseBody
+//     public Object getWeekSpeeding() throws Exception{
+//     	return CommonUtil.convertObjectFromGson(couchbaseService.selectTwoWeeksSpeedCnt());
+//     }
+//    
 }

@@ -3,12 +3,17 @@ package kr.doublechain.basic.explorer.service.couch;
 import static com.couchbase.client.java.query.Select.select;
 
 
+
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,8 +28,7 @@ import com.couchbase.client.java.query.dsl.Sort;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
-import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
-
+import kr.doublechain.basic.explorer.contorller.DccController;
 
 /**
  * CouchbaseService
@@ -32,7 +36,9 @@ import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
  */
 @Service("couchbaseService")
 public class CouchbaseService {
-
+	
+	private static final Logger LOG = LoggerFactory.getLogger(DccController.class);
+	
 	@Autowired
 	private Cluster couchbaseCluster;
 
@@ -98,19 +104,97 @@ public class CouchbaseService {
  	 * @return JsonObject
  	 * @throws Exception
  	 */
-      public JsonObject selectFingerPrintBySearch(String search) throws Exception {
-     	  JsonObject jsonObject = null;
-     	  Bucket streambucket = connectBucket(streamBucketName);
-     	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
-     	  Iterator<N1qlQueryRow> result = query.iterator();
-     	  
-     	  while(result.hasNext()) {
-             N1qlQueryRow nqr = result.next();
-             jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-     	  }
-     	  return jsonObject;
-       }
-    
+     public JsonObject selectFingerPrintBySearch(String search) throws Exception {
+     	 JsonObject jsonObject = null;
+	 	 Bucket streambucket = connectBucket(streamBucketName);
+	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
+	 	 Iterator<N1qlQueryRow> result = query.iterator();
+	 	  
+	 	 while(result.hasNext()) {
+	        N1qlQueryRow nqr = result.next();
+	        jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+	 	 }
+	 	 return jsonObject;
+      }
+     
+     /**
+      * 현재 날짜의 Speeding 총 카운트
+      * 
+      * @return JsonObject
+      * @throws Exception
+      */
+     public JsonObject selectSpeedCntByCurrent() throws Exception {
+     	Bucket bucket = connectBucket(streamBucketName);
+     	long currentTime = System.currentTimeMillis()/1000;
+     	LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
+     	return jsonObject;
+     }
+     
+     /**
+      * 현재 날짜의 FingerPrint 총 카운트
+      * 
+      * @return JsonObject
+      * @throws Exception
+      */
+     public JsonObject selectFingerPrintCntByCurrent() throws Exception {
+     	Bucket bucket = connectBucket(streamBucketName);
+     	long currentTime = System.currentTimeMillis()/1000;
+     	LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
+     	return jsonObject;
+     }
+     
+     /**
+ 	 * 최근 생성 스피딩 정보 요약(실시간 리프레시)
+ 	 * 
+ 	 * @return JSONArray
+ 	 * @throws Exception
+ 	 */
+     public JSONArray selectStreamBySpeed() throws Exception {
+     	Bucket bucket = connectBucket(streamBucketName);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.overspeed as overspeed FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by height desc limit 10 "));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JSONArray jsonList = new JSONArray();
+     	while(result.hasNext()) {
+     		jsonList.add(result.next());
+     	}
+     	return jsonList;
+     }
+     
+     /**
+ 	 * 최근 생성 지문 정보 요약
+ 	 * 
+ 	 * @return JSONArray
+ 	 * @throws Exception
+ 	 */
+     public JSONArray selectStreamByFingerPrint() throws Exception {
+     	Bucket bucket = connectBucket(streamBucketName);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.who as who FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by height desc limit 10 "));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JSONArray jsonList = new JSONArray();
+     	while(result.hasNext()) {
+     		jsonList.add(result.next());
+     	}
+     	return jsonList;
+     }
+     
       
 //    익스플로러 기획서 수정전 검색 메서드.(2018.8.22)
 //    /**
@@ -151,45 +235,6 @@ public class CouchbaseService {
 //    	jsonObject.addProperty("searchKey", key);
 //    	return jsonObject;
 //    }
-    
-    /**
-     * 4-1. 최근 마지막 생성 블록에 포함된 Speeding 개수
-     * 
-     * @return 
-     * @throws Exception
-     */
-    public JsonObject selectLatestBlockCntSpeeding() throws Exception {
-    	Bucket bucket = connectBucket(blockBucketName);
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, array_count(tx) AS txcnt FROM `" + blockBucketName + "` order by height desc limit 1"));
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	N1qlQueryRow nqr = result.next();
-    	JsonObject jsonObject = new JsonObject();
-        jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-    	return jsonObject;
-    }
-    
-    
-    /**
-     * 4-2. 동일 날짜에 생성된 블록의 Speeding 총 개수
-     * 쿼리 값이 없을때의 Exception 처리
-     * 
-     * @return JsonObject
-     * @throws Exception
-     */
-    public JsonObject selectBlockSpeedingCntByDate() throws Exception {
-    	Bucket bucket = connectBucket(blockBucketName);
-    	long currentTime = System.currentTimeMillis()/1000;
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT array_count(tx) AS tx From `" + blockBucketName + "` WHERE time = " + currentTime +" "));
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JsonObject jsonObject = new JsonObject();
-    	try {
-    		N1qlQueryRow nqr = result.next();
-        	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    	}
-    	return jsonObject;
-    }
     
     /**
      * 5. 2주간 발생된 일별 과속단속 카메라 촬영 건수.
@@ -237,9 +282,7 @@ public class CouchbaseService {
 	 * select block info by height limit 7
 	 * TODO date format 변경가능
 	 * 
-	 * @param 
-     * @return 
-	 * @return 
+	 * @return JSONArray
 	 * @throws Exception
 	 */
     public JSONArray selectBlockByheight() throws Exception {
@@ -251,48 +294,6 @@ public class CouchbaseService {
     		jsonList.add(result.next());
     	}
     	return jsonList;
-    }
-    
-    /**
-	 * 7. 최근 생성 스피딩 정보 요약(실시간 리프레시)
-	 * select Stream Data info by block height limit 7
-	 * 
-	 * @param 
-     * @return 
-	 * @return 
-	 * @throws Exception
-	 */
-    public JSONArray selectStreamByTxId() throws Exception {
-    	Bucket bucket = connectBucket(streamBucketName);
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.overspeed FROM `" + streamBucketName + "` order by height desc limit 10 "));
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JSONArray jsonList = new JSONArray();
-    	while(result.hasNext()) {
-    		jsonList.add(result.next());
-    	}
-    	return jsonList;
-    }
-    
-    /**
-	 * 8. txid에 대한 컨펌숫자
-	 * 
-	 * @param 
-     * @return 
-	 * @return 
-	 * @throws Exception
-	 */
-    public JsonObject selectConfirmCntByTxId(String txid) throws Exception {
-    	Bucket bucket = connectBucket(txBucketName);
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT confirmations FROM `" + txBucketName + "` WHERE txid = \"" + txid + "\""));
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JsonObject jsonObject = new JsonObject();
-    	try {
-    		N1qlQueryRow nqr = result.next();
-        	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    	}
-    	return jsonObject;
     }
     
     public JsonObject selectBlock(BigInteger blockNumber) throws Exception {

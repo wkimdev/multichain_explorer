@@ -1,7 +1,10 @@
 package kr.doublechain.basic.explorer.common.utils;
 
+import java.io.InputStream;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +19,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.map.type.TypeFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Component;
 
+import com.couchbase.client.java.query.N1qlQueryRow;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +39,7 @@ import kr.doublechain.basic.explorer.common.vo.DccError;
 import kr.doublechain.basic.explorer.common.vo.DccResponse;
 import kr.doublechain.basic.explorer.common.vo.Header;
 import kr.doublechain.basic.explorer.common.vo.Meta;
+import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 
 /**
  * CommonUtil class
@@ -89,6 +95,17 @@ public class CommonUtil {
 		T object = (T) mapper.readValue(content, clazz);
 		return object;
 	}
+	
+//	public static <T> T convertObjectFromString(String content, Class<T> clazz) throws Exception {
+//		ObjectMapper mapper = new ObjectMapper();
+//		FPrintListVO vo = new FPrintListVO();
+//		List<FPrintListVO> list = mapper.readValue(content, TypeFactory.defaultInstance().constructCollectionType(List.class, FPrintListVO.class));
+		// List<Employee> list = mapper.readValue(jsonString,
+		// TypeFactory.defaultInstance().constructCollectionType(List.class, Employee.class));
+//		T objet = list.toString();
+		//T object = (T) mapper.readValue(content, clazz);
+//		return object;
+//	}
 
 	/**
 	 * Generic Collection Type covert method
@@ -180,6 +197,23 @@ public class CommonUtil {
 		return new JsonParser().parse(jsonString).getAsJsonObject();
 	}
 	
+//	public static JsonObject convertGsonFromString(N1qlQueryRow next) throws JsonProcessingException {
+//		return new JsonParser().parse(toString()).getAsJsonObject();
+//	}
+	
+	public static List<FPrintListVO> getFingerPrint(ArrayList<List> list) {
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    try {
+	        TypeReference<List<FPrintListVO>> typeReference = new TypeReference<List<FPrintListVO>>() {};
+	        Gson gson = new Gson();
+	        return (List<FPrintListVO>) objectMapper.readValue(gson.toJson(list), FPrintListVO.class);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return null;
+	}
+
+	
 	/**
 	 * Json RPC로 받은 tx list를 List형태로 반환한다.
 	 * 
@@ -266,5 +300,7 @@ public class CommonUtil {
 		}
 
 	}
+
+	
 
 }
