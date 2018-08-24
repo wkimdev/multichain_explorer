@@ -1,4 +1,4 @@
-package kr.doublechain.basic.explorer.service;
+package kr.doublechain.basic.explorer.schedule;
 
 import java.math.BigInteger;
 import java.util.Iterator;
@@ -86,7 +86,7 @@ public class UpdateBlockService {
 	}
 
 	/**
-	 * DB에 Block 정보를 merge한다.
+	 * DB에 Block 정보를 update한다.
 	 * 
 	 * @param JsonObject
 	 * @return void

@@ -33,6 +33,11 @@ server:
   tomcat:
     uri-encoding: UTF-8
 
+#schedule pool size
+schedule:
+  pool:
+    size: 5
+    
 #api version
 api:
   contextRoot: /v1
@@ -53,8 +58,8 @@ logging:
         
 #dcc node setup        
 dcc:
-  user: multichainrpc
-  password: dc!393939
+  user: multichainrpc  
+  password: dc!393939  
   port: "4444"
   chainname: exco
   genesisblockhash: '"0040493c439b9b41df8c85cf2934769503911da0195e95ff2b2445c774350a36"'

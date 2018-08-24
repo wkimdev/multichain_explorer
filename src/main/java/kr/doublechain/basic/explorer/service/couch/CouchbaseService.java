@@ -30,21 +30,6 @@ import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
  * CouchbaseService
  *
  */
-/**
- * 
- * created by wkimdev
- *
- */
-/**
- * 
- * created by wkimdev
- *
- */
-/**
- * 
- * created by wkimdev
- *
- */
 @Service("couchbaseService")
 public class CouchbaseService {
 
@@ -323,6 +308,14 @@ public class CouchbaseService {
     	return null;
     }
     
+    /**
+	 * block 정보 업데이트 - 쓰레드가 돌면서 호출을 한다.
+	 * 
+	 * @param 
+     * @return 
+	 * @return 
+	 * @throws Exception
+	 */
     public void upsertBucketBlock(JsonObject jsonObject) throws Exception {
     	Bucket bucket = connectBucket(blockBucketName);
         bucket.upsert(RawJsonDocument.create(jsonObject.get("height").toString(), jsonObject.toString()));
