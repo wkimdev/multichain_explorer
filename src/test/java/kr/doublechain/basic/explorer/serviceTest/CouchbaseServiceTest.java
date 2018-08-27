@@ -117,9 +117,9 @@ public class CouchbaseServiceTest {
 		
 		FPrintListVO vo = new FPrintListVO(); 
 		ObjectMapper mapper = new ObjectMapper();
-		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
+//		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
 		
-		System.out.println(list);
+//		System.out.println(list);
 //			List<HashMap> list1 = mapper.readValue(content, clazz);
 //			HashMap map list2 = list1.get(0);
 //			return object;

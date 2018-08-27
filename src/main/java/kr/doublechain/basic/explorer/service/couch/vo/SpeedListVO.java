@@ -10,15 +10,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * FPrintListVO for lists
+ * SpeedListVO for lists
  *
  */
 @Getter
 @Setter
-public class FPrintListVO {
+public class SpeedListVO {
 	
-	//@JsonDeserialize(as=FPrintListVO.class)
-    //@JsonProperty("data")
-	private List<DataResponse> dataResponse;
+	private List<SpeedDataResponse> speedDataResponse;
 	
 }

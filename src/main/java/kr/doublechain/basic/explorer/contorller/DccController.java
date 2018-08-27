@@ -1,7 +1,5 @@
 package kr.doublechain.basic.explorer.contorller;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
@@ -27,8 +25,11 @@ import kr.doublechain.basic.explorer.common.vo.DccResponse;
 import kr.doublechain.basic.explorer.common.vo.Header;
 import kr.doublechain.basic.explorer.common.vo.Meta;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
+import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintVO;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
@@ -148,16 +149,18 @@ public class DccController {
 	@ApiOperation(value = "최근 생성 스피딩 정보", notes = "최근 생성된 스피딩 상세 정보 (리스트 10개 호출).")
     @RequestMapping("/speeds/lists")
     @ResponseBody
-    public DccResponse<SpeedVO> getSpeedIdLists() throws Exception{
+    public DccResponse<SpeedListVO> getSpeedIdLists() throws Exception{
 		
 		Header header = new Header();
 		Meta meta = new Meta();
 		
 		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
-		SpeedVO speedVO = CommonUtil.convertObjectFromJsonString(jsonArray.toString(), SpeedVO.class);
+		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
+		SpeedListVO speddListVO = new SpeedListVO();
+		speddListVO.setSpeedDataResponse(list);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-    	return CommonUtil.Response(header, speedVO, meta);
+    	return CommonUtil.Response(header, speddListVO, meta);
     }
 	
     /**
@@ -171,32 +174,18 @@ public class DccController {
 	@ApiOperation(value = "최근 생성 지문 정보", notes = "최근 생성된 스피딩 상세 정보 (리스트 10개 호출).")
     @RequestMapping("/fingerPrints/lists")
     @ResponseBody
-    public DccResponse<FPrintListVO> getFingerPrintIdLists() throws Exception{
-		
+    public DccResponse<DataResponse> getFingerPrintIdLists() throws Exception{
 		Header header = new Header();
 		Meta meta = new Meta();
 		
 		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint();
-		FPrintListVO vo = new FPrintListVO(); 
-		ObjectMapper mapper = new ObjectMapper();
-		
-		System.out.println("=====================================================");
-		System.out.println(jsonArray.toString());
-		LOG.info(jsonArray.toString());
-		List<FPrintListVO.DataResponse> list = mapper.readValue(jsonArray.toString(), List.class);
-		
-		//FPrintListVO fPrintListVO = CommonUtil.convertObjectFromString(list.toString(), FPrintListVO.class);
-		
-		FPrintListVO fPrintListVO = new FPrintListVO(); 
-//		ObjectMapper mapper = new ObjectMapper();
-//		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
-		
-		
-//		JsonObject jsonObject = couchbaseService.selectFingerPrintBySearch(search);
-//		FingerPrintVO fingerPrintVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), FingerPrintVO.class);
+		//List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>(){});
+		DataResponse dataResponseVO = CommonUtil.convertObjectFromJsonString(jsonArray.toString(), DataResponse.class);
+		//FPrintListVO fpVO = new FPrintListVO();
+		//fpVO.setDataResponse(list);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-    	return CommonUtil.Response(header, fPrintListVO, meta);
+    	return CommonUtil.Response(header, dataResponseVO, meta);
     }
 	
     

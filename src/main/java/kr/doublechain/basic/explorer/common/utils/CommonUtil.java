@@ -1,10 +1,9 @@
 package kr.doublechain.basic.explorer.common.utils;
 
-import java.io.InputStream;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,13 +18,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Component;
 
-import com.couchbase.client.java.query.N1qlQueryRow;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +40,11 @@ import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 
 /**
  * CommonUtil class
+ *
+ */
+/**
+ * 
+ * created by wkimdev
  *
  */
 @Component
@@ -96,17 +98,6 @@ public class CommonUtil {
 		return object;
 	}
 	
-//	public static <T> T convertObjectFromString(String content, Class<T> clazz) throws Exception {
-//		ObjectMapper mapper = new ObjectMapper();
-//		FPrintListVO vo = new FPrintListVO();
-//		List<FPrintListVO> list = mapper.readValue(content, TypeFactory.defaultInstance().constructCollectionType(List.class, FPrintListVO.class));
-		// List<Employee> list = mapper.readValue(jsonString,
-		// TypeFactory.defaultInstance().constructCollectionType(List.class, Employee.class));
-//		T objet = list.toString();
-		//T object = (T) mapper.readValue(content, clazz);
-//		return object;
-//	}
-
 	/**
 	 * Generic Collection Type covert method
 	 * 
@@ -117,6 +108,7 @@ public class CommonUtil {
 	 */
 	public static <T> T convertObjectFromJsonStringByTypeRef(String content, TypeReference<T> clazz) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
+		// deserialized를 여기서?
 		T object = mapper.readValue(content, clazz);
 		return object;
 	}
@@ -248,6 +240,17 @@ public class CommonUtil {
 		JSONParser parser = new JSONParser();
 		return parser.parse(json.toString());
 	}
+	
+	/**
+	 * 
+	 * @param JSONArray
+	 * @return Object
+	 */
+//	public static <T> T convertVoObjectFromJSONArray(org.json.simple.JSONArray.toString string, Class<T> clazz) throws Exception {
+//		ObjectMapper mapper = new ObjectMapper();
+//		T object = (T) mapper.readValue(jsonArray.toString(), clazz);
+//		return object;
+//	}
 
 	/**
 	 * block chain node connect url
