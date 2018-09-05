@@ -109,7 +109,7 @@ public class CouchbaseServiceTest {
 		System.out.println(couchbaseService.selectFingerPrintBySearch("214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f"));
 	}
 	
-	@Test
+	//@Test
 	public void selectStreamByFingerPrint() throws Exception {
 		// array 두개..
 		
@@ -127,5 +127,14 @@ public class CouchbaseServiceTest {
 		//System.out.println(couchbaseService.selectStreamByFingerPrint());
 	}
 	
+	@Test
+	public void selectCurrentSpeedingCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
+	}
+	
+	//@Test
+	public void selectSpeedingCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksSpeedCnt()));
+	}
 	
 }

@@ -189,10 +189,6 @@ public class CommonUtil {
 		return new JsonParser().parse(jsonString).getAsJsonObject();
 	}
 	
-//	public static JsonObject convertGsonFromString(N1qlQueryRow next) throws JsonProcessingException {
-//		return new JsonParser().parse(toString()).getAsJsonObject();
-//	}
-	
 	public static List<FPrintListVO> getFingerPrint(ArrayList<List> list) {
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    try {
@@ -242,15 +238,15 @@ public class CommonUtil {
 	}
 	
 	/**
+	 * Object로 반환한다.
 	 * 
-	 * @param JSONArray
+	 * @param Object
 	 * @return Object
 	 */
-//	public static <T> T convertVoObjectFromJSONArray(org.json.simple.JSONArray.toString string, Class<T> clazz) throws Exception {
-//		ObjectMapper mapper = new ObjectMapper();
-//		T object = (T) mapper.readValue(jsonArray.toString(), clazz);
-//		return object;
-//	}
+	public static Object convertJSONObjectFromJSONArrayObject(Object json) throws Exception {
+		JSONParser parser = new JSONParser();
+		return parser.parse(json.toString());
+	}
 
 	/**
 	 * block chain node connect url

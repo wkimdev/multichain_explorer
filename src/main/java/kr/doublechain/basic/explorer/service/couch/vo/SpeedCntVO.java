@@ -1,18 +1,17 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
 import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * SpeedListVO for lists
+ * SpeedCntVO for lists
  *
  */
 @Getter
 @Setter
-public class SpeedListVO {
+public class SpeedCntVO {
 	
-	private List<SpeedDataResponse> speedDataResponse;
+	private List<SpeedCntResponse> dataResponse;
 	
 }

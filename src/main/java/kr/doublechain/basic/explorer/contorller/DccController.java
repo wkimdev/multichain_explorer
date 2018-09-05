@@ -1,13 +1,19 @@
 package kr.doublechain.basic.explorer.contorller;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
@@ -28,10 +35,13 @@ import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintVO;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
+import kr.doublechain.basic.explorer.service.user.UserService;
 
 /**
  * Dcc API for Explorer
@@ -40,6 +50,7 @@ import kr.doublechain.basic.explorer.service.dcc.DccService;
  *
  */
 @RestController
+@CrossOrigin
 @Api(tags = "Explorer")
 @RequestMapping("${api.contextRoot}")
 public class DccController {
@@ -57,6 +68,12 @@ public class DccController {
      */
 	@Autowired
 	CouchbaseService couchbaseService;
+	
+	/**
+     * UserService Service
+     */
+	@Autowired
+	UserService userService;
 	
 	/**
 	 * Explorer 노드 블록 정보 호출 for test
@@ -156,11 +173,11 @@ public class DccController {
 		
 		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
 		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
-		SpeedListVO speddListVO = new SpeedListVO();
-		speddListVO.setSpeedDataResponse(list);
+		SpeedListVO speedListVO = new SpeedListVO();
+		speedListVO.setSpeedDataResponse(list);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-    	return CommonUtil.Response(header, speddListVO, meta);
+    	return CommonUtil.Response(header, speedListVO, meta);
     }
 	
     /**
@@ -174,34 +191,58 @@ public class DccController {
 	@ApiOperation(value = "최근 생성 지문 정보", notes = "최근 생성된 스피딩 상세 정보 (리스트 10개 호출).")
     @RequestMapping("/fingerPrints/lists")
     @ResponseBody
-    public DccResponse<DataResponse> getFingerPrintIdLists() throws Exception{
+    public DccResponse<FPrintListVO> getFingerPrintIdLists() throws Exception{
 		Header header = new Header();
 		Meta meta = new Meta();
 		
 		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint();
-		//List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>(){});
-		DataResponse dataResponseVO = CommonUtil.convertObjectFromJsonString(jsonArray.toString(), DataResponse.class);
-		//FPrintListVO fpVO = new FPrintListVO();
-		//fpVO.setDataResponse(list);
+		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
+		FPrintListVO fPrintListVO = new FPrintListVO();
+		fPrintListVO.setDataResponse(list);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-    	return CommonUtil.Response(header, dataResponseVO, meta);
+    	return CommonUtil.Response(header, fPrintListVO, meta);
     }
 	
-    
-    /**
- 	 * week speeding graph
- 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프
+	/**
+ 	 * 현재 날짜 기준 2주간 date
  	 * 
  	 * @param 
  	 * @return 
  	 * @throws Exception
  	 */
-//	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프 데이터.")
-//     @RequestMapping("/blocks/graph")
-//     @ResponseBody
-//     public Object getWeekSpeeding() throws Exception{
-//     	return CommonUtil.convertObjectFromGson(couchbaseService.selectTwoWeeksSpeedCnt());
-//     }
-//    
+	 @ApiOperation(value = "2주 기간 날짜 리스트", notes = "현재 날짜 기준 2주간 date.")
+     @RequestMapping("/twoweeks")
+     @ResponseBody
+     public Object getTwoWeeksDate() throws Exception{
+     	return CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate());
+     }
+	
+    
+    /**
+ 	 * 2week speeding graph
+ 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프-txid기준 카운트
+ 	 * TODO 작업중
+ 	 * 
+ 	 * @param 
+ 	 * @return 
+ 	 * @throws Exception
+ 	 */
+	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프 데이터.")
+     @RequestMapping("/speeds/graph")
+     @ResponseBody
+     public DccResponse<SpeedCntVO> getTwoWeeksSpeeds() throws Exception{ 		 
+		 
+		Header header = new Header();
+		Meta meta = new Meta();
+			
+		JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt();
+		List<SpeedCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
+		SpeedCntVO speedCntVO = new SpeedCntVO();
+		speedCntVO.setDataResponse(list);
+			
+		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
+    	return CommonUtil.Response(header, speedCntVO, meta);
+     }
+    
 }

@@ -1,9 +1,7 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
-import java.util.List;
-
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonFormat;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,11 +17,15 @@ public class SpeedDataResponse {
 	/**
 	 * height
 	 */
+	@JsonIgnore
+	@JsonProperty(value = "height")
 	private Integer height;
 	
 	/**
-	 * overspeed
+	 * who
 	 */
+	@JsonIgnore
+	@JsonProperty(value = "overspeed")
 	private String overspeed;
 	
 	/**

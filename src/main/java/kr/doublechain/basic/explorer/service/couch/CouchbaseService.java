@@ -5,6 +5,8 @@ import static com.couchbase.client.java.query.Select.select;
 
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -125,9 +127,10 @@ public class CouchbaseService {
       */
      public JsonObject selectSpeedCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	long currentTime = System.currentTimeMillis()/1000;
-     	LOG.info("currentTime target :"+currentTime);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	// time기준으로 count할때 사용함.
+     	// long currentTime = System.currentTimeMillis()/1000;
+     	// LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -195,47 +198,29 @@ public class CouchbaseService {
      	return jsonList;
      }
      
-      
-//    익스플로러 기획서 수정전 검색 메서드.(2018.8.22)
-//    /**
-//     * @param search
-//     * @return
-//     * @throws Exception
-//     */
-//    public JsonObject selectBlockBySearch(String search) throws Exception {
-//    	int key = 0; //1 = streamBucket, 2 = blockbucket
-//    	
-//    	JsonObject jsonObject = null;
-//    	if (search.length() == 64) {
-//    		key = 1;
-//    		// it's a transaction id(=speeding id, txid, tx)
-//    		Bucket streambucket = connectBucket(streamBucketName);
-//    		N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE txid = \"" + search + "\""));
-//    		Iterator<N1qlQueryRow> result = query.iterator();
-//    		while(result.hasNext()) {
-//              N1qlQueryRow nqr = result.next();
-//              
-//              // 최상의 valueObject로 던져주는 곳에 맵핑.
-//              // StreamVO streamVO = streamVO();
-//              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-//              //CommonUtil.checkValueObject(jsonObject, StreamVO.class);
-//          }
-//    	} else {
-//			// it's a block number
-//    		key = 2;
-//    		Bucket blockbucket = connectBucket(blockBucketName);
-//    		int searchNumber = Integer.parseInt(search);
-//    		N1qlQueryResult query = blockbucket.query(N1qlQuery.simple("SELECT * FROM `" + blockBucketName + "` WHERE height = " + searchNumber + ""));
-//    		Iterator<N1qlQueryRow> result = query.iterator();
-//    		while(result.hasNext()) {
-//              N1qlQueryRow nqr = result.next();
-//              jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
-//          }
-//		}
-//    	jsonObject.addProperty("searchKey", key);
-//    	return jsonObject;
-//    }
-    
+     /**
+      * 2 weeks date 조회
+      * 
+      * @return JsonObject
+      * @throws Exception
+      */
+     public JsonObject selectTwoWeeksSpeeding() throws Exception {
+    	 
+     	Bucket bucket = connectBucket(streamBucketName);
+     	long currentTime = System.currentTimeMillis()/1000;
+     	LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
+     	return jsonObject;
+     }
+     
     /**
      * 5. 2주간 발생된 일별 과속단속 카메라 촬영 건수.
      * TODO 일별 stream count를 시키기.
@@ -243,38 +228,29 @@ public class CouchbaseService {
      * @return JsonObject
      * @throws Exception
      */
-    public JsonObject selectTwoWeeksSpeedCnt() throws Exception {
-    	Bucket bucket = connectBucket(streamBucketName);
-    	Calendar cal = Calendar.getInstance();
-		Date date = new Date();
+    public JSONArray selectTwoWeeksSpeedCnt() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		Date date = new Date();	// current date
+		
+		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		cal.add(Calendar.DATE, -1);
-		long pastTime = cal.getTimeInMillis()/1000;
+		cal.add(Calendar.DATE, -13); //before 2 weeks date
+    	
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
+											" from `" + streamBucketName + "` " +											
+											" where streamKeys = \"\\\"speeding\\\"\" " + 
+											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
 		
-		long currentTime = System.currentTimeMillis()/1000;
-		Date date2 = new Date();
-		date2.setTime((long)currentTime*1000);
-		
-		/*
-		 * 
-		 * 2주 간격은 동적으로 바뀌고, 거기에 따른 일별 데이터도 동적으로 바뀐다. 현재 동일 날짜만 존재함.
-		 * 
-		 * select count(txid) as txCnt from Streams where time between 1534412341 and 1534412538  
-			  union all  
-			select count(txid) as txCnt from Streams where time between 1534412337 and 1534412520 
-			  union all  
-			select count(txid) as txCnt from Streams where time between 1534412320 and 1534412510;
-		 * */
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(*) as cnt from `" + streamBucketName + "` where time between 1533548084 and 1534757684 and name = \"IoT\" and streamKeys = \"\\\"jsonrpc\\\"\";"));
     	Iterator<N1qlQueryRow> result = query.iterator();
-    	JsonObject jsonObject = new JsonObject();
-    	try {
-    		N1qlQueryRow nqr = result.next();
-        	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-    	} catch(Exception e) {
-    		e.printStackTrace();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
     	}
-    	return jsonObject;
+    	return jsonList;
     }
     
     /**
