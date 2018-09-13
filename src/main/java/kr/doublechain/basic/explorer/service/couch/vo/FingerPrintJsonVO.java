@@ -1,5 +1,9 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
+import java.math.BigInteger;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,27 +16,28 @@ import lombok.Setter;
 public class FingerPrintJsonVO {
 	
 	/**
-	 * image
-	 *
+	 * picture
 	 */
-	private String clue;
+	private String picture;
 	
 	/**
-	 * date
-	 *
+	 * person
 	 */
-	private String date;
+	private String person;
 	
 	/**
 	 * open
-	 *
 	 */
 	private String open;
 	
 	/**
-	 * who
-	 *
+	 * location
 	 */
-	private String who;
+	private String location;
+	
+	/**
+	 * date
+	 */
+	private String date;
 	
 }

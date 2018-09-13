@@ -34,6 +34,8 @@ import kr.doublechain.basic.explorer.common.vo.Meta;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
+import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintCntResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintCntVO;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntVO;
@@ -221,8 +223,7 @@ public class DccController {
     
     /**
  	 * 2week speeding graph
- 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프-txid기준 카운트
- 	 * TODO 작업중
+ 	 * 최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프-txid기준 카운트 
  	 * 
  	 * @param 
  	 * @return 
@@ -244,5 +245,30 @@ public class DccController {
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
     	return CommonUtil.Response(header, speedCntVO, meta);
      }
-    
+	 
+	 /**
+ 	 * 2week speeding graph
+ 	 * 최근 2주(14일)간 일별 출입인증 시도 건수 그래프 
+ 	 * 
+ 	 * @param 
+ 	 * @return 
+ 	 * @throws Exception
+ 	 */
+	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 출입인증 시도 건수 그래프 데이터.")
+     @RequestMapping("/fingerPrints/graph")
+     @ResponseBody
+     public DccResponse<FingerPrintCntVO> getTwoWeeksFingerPrints() throws Exception{ 		 
+		 
+		Header header = new Header();
+		Meta meta = new Meta();
+			
+		JSONArray jsonArray = couchbaseService.selectTwoWeeksFingerPrints();
+		List<FingerPrintCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});		
+		FingerPrintCntVO fingerPrintCntVO = new FingerPrintCntVO();
+		fingerPrintCntVO.setDataResponse(list);
+			
+		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
+    	return CommonUtil.Response(header, fingerPrintCntVO, meta);
+     }
+
 }

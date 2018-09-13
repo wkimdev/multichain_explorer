@@ -1,6 +1,8 @@
 package kr.doublechain.basic.explorer.serviceTest;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -127,7 +129,7 @@ public class CouchbaseServiceTest {
 		//System.out.println(couchbaseService.selectStreamByFingerPrint());
 	}
 	
-	@Test
+	//@Test
 	public void selectCurrentSpeedingCnt() throws Exception {
 		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
 	}
@@ -135,6 +137,11 @@ public class CouchbaseServiceTest {
 	//@Test
 	public void selectSpeedingCnt() throws Exception {
 		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksSpeedCnt()));
+	}
+	
+	@Test
+	public void selectFingerPrintCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
 	}
 	
 }

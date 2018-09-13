@@ -78,4 +78,4 @@ couchbase:
     expiry: ""
     user: jsg0212
     password: dc393939
-    ip: 192.168.0.145  
+    ip: 192.168.0.145

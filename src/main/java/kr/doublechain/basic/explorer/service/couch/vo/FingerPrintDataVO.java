@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class FingerPringDataVO {
+public class FingerPrintDataVO {
 	
 	/**
 	 * finiger stream의 jsonObject data

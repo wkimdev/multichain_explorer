@@ -31,7 +31,7 @@ public class FingerPrintVO {
 	 * FingerPrint data
 	 * 
 	 */
-	private FingerPringDataVO data;
+	private FingerPrintDataVO data;
 	
 	/**
 	 * 블록 넘버

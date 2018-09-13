@@ -149,10 +149,8 @@ public class CouchbaseService {
       * @throws Exception
       */
      public JsonObject selectFingerPrintCntByCurrent() throws Exception {
-     	Bucket bucket = connectBucket(streamBucketName);
-     	long currentTime = System.currentTimeMillis()/1000;
-     	LOG.info("currentTime target :"+currentTime);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	Bucket bucket = connectBucket(streamBucketName);     	
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -222,7 +220,7 @@ public class CouchbaseService {
      }
      
     /**
-     * 5. 2주간 발생된 일별 과속단속 카메라 촬영 건수.
+     * 2주간 발생된 일별 과속단속 카메라 촬영 건수.
      * TODO 일별 stream count를 시키기.
      * 
      * @return JsonObject
@@ -238,9 +236,40 @@ public class CouchbaseService {
 		cal.setTime(date);
 		cal.add(Calendar.DATE, -13); //before 2 weeks date
     	
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
 											" from `" + streamBucketName + "` " +											
 											" where streamKeys = \"\\\"speeding\\\"\" " + 
+											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
+		
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
+    /**
+     * 2주간 발생된 일별 출입인증 시도 건수. 
+     * 
+     * @return JsonObject
+     * @throws Exception
+     */
+    public JSONArray selectTwoWeeksFingerPrints() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		Date date = new Date();	// current date
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, -13); //before 2 weeks date
+    	
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as fingerPrintCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
+											" from `" + streamBucketName + "` " +											
+											" where streamKeys = \"\\\"inout\\\"\" " + 
 											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
 											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
 											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
