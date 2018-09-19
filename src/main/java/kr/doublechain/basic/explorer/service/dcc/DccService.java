@@ -3,6 +3,7 @@ package kr.doublechain.basic.explorer.service.dcc;
 import java.util.List;
 
 
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import kr.doublechain.basic.explorer.code.RPCCommandCode;
 import kr.doublechain.basic.explorer.node.Dcc;
 
@@ -131,6 +131,27 @@ public class DccService {
 		list.add(txHash);
 		list.add(n);		
 		return RPCCall(RPCCommandCode.DCC_GETTXDATA.CODE, list);
+	}
+	
+	/**
+	 * 블럭 confirmation 체크
+	 */
+	public BigInteger confirmationCheck() throws Exception {
+		
+		BigInteger latestBlock = getBlockCount();
+//		JsonObject jo = getTransactionReceipt(txId);
+//		int confirm = 0;
+//		JsonElement jsonElement = (JsonElement)jo.get("blockNumber");
+//		String blockNumber = jsonElement.getAsString();
+//		
+//		if(blockNumber != null) {
+//			BigInteger latestBlock = getBlockCount();
+//			BigInteger currentBlock = CommonUtil.decodeQuantityTypeOfETH(blockNumber);
+//			// confirm = latestBlock - currentBlock; (최신 블럭 - 히스토리 블럭)
+//			BigInteger confirmNumber = latestBlock.subtract(currentBlock);
+//			confirm = confirmNumber.intValue();
+//		}
+		return latestBlock;
 	}
 
 }

@@ -79,4 +79,10 @@ public class SpeedVO {
 	 */
 	private String type;
 	
+	/**
+	 * confirm check value
+	 */
+	private BigInteger checkConfirmNum;
+	
+	
 }

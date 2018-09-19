@@ -90,8 +90,8 @@ public class CouchbaseService {
     	  JsonObject jsonObject = null;
     	  Bucket streambucket = connectBucket(streamBucketName);
     	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" and txid = \"" + search + "\""));
-    	  Iterator<N1qlQueryRow> result = query.iterator();
-    	  
+    	  Iterator<N1qlQueryRow> result = query.iterator();    	  
+    	      	  
     	  while(result.hasNext()) {
             N1qlQueryRow nqr = result.next();
             jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
@@ -170,7 +170,7 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamBySpeed() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.overspeed as overspeed FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by height desc limit 10 "));
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.overspeed as overspeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by data.json.date desc limit 10 "));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
      	while(result.hasNext()) {
@@ -187,7 +187,7 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, txid, data.json.who as who FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by height desc limit 10 "));
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.open as status, txid, height FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by data.json.date desc limit 10 "));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
      	while(result.hasNext()) {

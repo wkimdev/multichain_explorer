@@ -33,5 +33,15 @@ public class SpeedDataResponse {
 	 */
 	private String txid;
 	
+	/**
+	 * location
+	 */
+	private String location;
+	
+	/**
+	 * date
+	 */
+	private String date;
+	
 	
 }

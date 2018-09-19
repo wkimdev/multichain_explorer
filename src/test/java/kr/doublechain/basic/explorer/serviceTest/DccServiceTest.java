@@ -83,4 +83,10 @@ public class DccServiceTest {
 		list.add(0);
 		System.out.println(dccService.RPCCall("gettxoutdata", list));
 	}
+	
+	@Test
+	public void getConfirmationCheck() throws Exception {
+		System.out.println(dccService.confirmationCheck());
+	}
+	
 }

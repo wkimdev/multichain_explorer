@@ -25,12 +25,22 @@ public class DataResponse {
 	/**
 	 * person
 	 */
-	private String who;
+	private String person;
 	
 	/**
 	 * txid
 	 */
 	private String txid;
+	
+	/**
+	 * date
+	 */
+	private String date;
+	
+	/**
+	 * status
+	 */
+	private String status;
 	
 	
 }

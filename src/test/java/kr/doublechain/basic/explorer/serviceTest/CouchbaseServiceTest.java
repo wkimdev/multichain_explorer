@@ -14,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.couchbase.client.java.Bucket;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
@@ -41,12 +45,7 @@ public class CouchbaseServiceTest {
 	//@Test
 	public void upsertBucketTransactionTest() throws Exception {
 		couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
-	}
-	
-	//@Test
-	public void selectLastBlockTest() throws Exception {
-		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectLastBlock()));
-	}
+	}	
 	
 	//@Test
 	public void selectBlockByheightTest() throws Exception {
@@ -139,9 +138,39 @@ public class CouchbaseServiceTest {
 		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksSpeedCnt()));
 	}
 	
-	@Test
+	//@Test
 	public void selectFingerPrintCnt() throws Exception {
-		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
+    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		Date date = new Date();	// current date
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, -13); //before 2 weeks date
+		
+		System.out.println(dateFormat.format(cal.getTime()));
+		System.out.println(dateFormat.format(date));
+		
+		//System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
 	}
+	
+	@Test
+	public void selectLastBlockTest() throws Exception {
+		JsonObject getLastBlock = couchbaseService.selectLastBlock();		
+		JsonObject test = new JsonObject();
+		test.add("row", getLastBlock.getAsJsonObject());
+		System.out.println(test.getAsJsonObject("row").get("height"));		
+	}
+	
+	//@Test
+	public void selectSpeedBySearch() throws Exception {
+		JsonObject jsonObject = couchbaseService.selectSpeedBySearch("62fdda6b30e34ff654a9ae5062a7257f501bb91d7b39bd28b5bf75f44374c996");
+		JsonObject test = new JsonObject();
+		test.add("row", jsonObject.getAsJsonObject());
+		System.out.println(test.getAsJsonObject("row").get("height"));
+		
+		//System.out.println(jsonObject);
+	} 
+	
 	
 }

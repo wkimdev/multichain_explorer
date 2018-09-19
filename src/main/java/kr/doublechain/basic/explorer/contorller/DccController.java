@@ -1,5 +1,6 @@
 package kr.doublechain.basic.explorer.contorller;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -88,6 +89,14 @@ public class DccController {
     public DccResponse<Object> getBlockByHash() throws Exception {
 		return CommonUtil.Response(new Header(), CommonUtil.convertObjectFromGson(dccService.getInfo()), new Meta());
     }
+	
+	/**
+	 * confirm check
+	 * @param 
+	 * @return String
+	 * @throws Exception
+	 */
+	
     
     /**
 	 * Speeding Stream Search API - 검색어(txId for Stream Search)
@@ -104,11 +113,45 @@ public class DccController {
 		Meta meta = new Meta();
 
 		JsonObject jsonObject = couchbaseService.selectSpeedBySearch(search);
+		
+		
+		// 현재 검색한 트랜잭션의 블럭 넘버 정보 호출
+		JsonObject searchHeight = new JsonObject();
+		searchHeight.add("row", jsonObject.getAsJsonObject());
+		JsonElement searchBlock = searchHeight.getAsJsonObject("row").get("height");				
+		
+		// DB에서 최신 블럭 호출.
+		JsonObject getLastBlock = couchbaseService.selectLastBlock();		
+		JsonObject test = new JsonObject();
+		test.add("row", getLastBlock.getAsJsonObject());
+		JsonElement lastBlock = test.getAsJsonObject("row").get("height");
+		
+		// confirm check
+		BigInteger CheckConfirmNum = getConfirmCheck(lastBlock, searchBlock);
+		jsonObject.addProperty("checkConfirmNum", CheckConfirmNum);
+		
 		SpeedVO speedVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), SpeedVO.class);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
 		return CommonUtil.Response(header, speedVO, meta);
     }
+	
+	/**
+	 * confirm = 현재 디비에서 조회되는 최신블록(지문 * 스피딩 통합) - 선택한 블록 높이.
+	 *  
+	 * @param 
+	 * @return BigInteger
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "컨펌 체크", notes = "검색한 트랜잭션에 대한 블럭 컨펌정보를 반환한다.")
+    @GetMapping(value="/search/confirmcheck")
+    @ResponseBody
+    public BigInteger getConfirmCheck(JsonElement lastBlock, JsonElement searchBlock) throws Exception{		
+		BigInteger b1 = BigInteger.valueOf(lastBlock.getAsInt());
+		BigInteger b2 = BigInteger.valueOf(searchBlock.getAsInt());		
+		return b1.subtract(b2);
+    }
+	
 	
 	/**
 	 * FingerPrint Stream Search API - 검색어(txId for Stream Search)
