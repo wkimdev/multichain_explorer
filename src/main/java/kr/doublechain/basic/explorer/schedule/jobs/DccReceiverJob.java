@@ -29,7 +29,7 @@ public class DccReceiverJob {
 	
 	private final Logger LOG = LoggerFactory.getLogger(DccReceiverJob.class);
 	
-    //@Scheduled(cron = "*/6 * * * * *")
+    @Scheduled(cron = "*/6 * * * * *")
     public void dccReceiverJob() throws Exception {
         LOG.info("=============== this is dccReceiverJob start!!! ===============");
         

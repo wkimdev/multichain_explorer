@@ -18,17 +18,22 @@ public class FingerPrintJsonVO {
 	/**
 	 * picture
 	 */
-	private String picture;
+	private String clue;
 	
 	/**
-	 * person
+	 * date
 	 */
-	private String person;
+	private String date;
 	
 	/**
-	 * open
+	 * lat
 	 */
-	private String open;
+	private String lat;
+	
+	/**
+	 * lng
+	 */
+	private String lng;
 	
 	/**
 	 * location
@@ -36,8 +41,17 @@ public class FingerPrintJsonVO {
 	private String location;
 	
 	/**
-	 * date
+	 * person
 	 */
-	private String date;
+	private String person;
+	
+	/**
+	 * state
+	 */
+	private String state;
+	
+	
+	
+	
 	
 }

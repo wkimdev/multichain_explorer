@@ -20,12 +20,7 @@ public class SpeedVO {
 	/**
 	 * createtxid
 	 */
-	private String createtxid;
-	
-	/**
-	 * confirm count
-	 */
-	private Integer confirmations;
+	private String createtxid;		
 	
 	/**
 	 * data
@@ -78,7 +73,7 @@ public class SpeedVO {
 	 * type
 	 */
 	private String type;
-	
+		
 	/**
 	 * confirm check value
 	 */

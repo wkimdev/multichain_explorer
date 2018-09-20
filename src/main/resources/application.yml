@@ -61,9 +61,12 @@ dcc:
   user: multichainrpc  
   password: dc!393939  
   port: "4444"
-  chainname: exco
-  genesisblockhash: '"0040493c439b9b41df8c85cf2934769503911da0195e95ff2b2445c774350a36"'
-  host: 192.168.0.145
+  #chainname: exco
+  chainname: IoT
+  #genesisblockhash: '"0040493c439b9b41df8c85cf2934769503911da0195e95ff2b2445c774350a36"'
+  genesisblockhash: '"00197480c24fda05bf12de3df9c0a244aa053f75118aa345ca820748718f9fa8"'
+  #host: 192.168.0.145
+  host: 192.168.0.144
   
 #couchbase setup    
 couchbase: 

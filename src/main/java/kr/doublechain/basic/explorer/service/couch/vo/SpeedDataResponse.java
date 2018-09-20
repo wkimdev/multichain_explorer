@@ -22,11 +22,11 @@ public class SpeedDataResponse {
 	private Integer height;
 	
 	/**
-	 * who
+	 * vihiclespeed
 	 */
 	@JsonIgnore
-	@JsonProperty(value = "overspeed")
-	private String overspeed;
+	@JsonProperty(value = "vihiclespeed")
+	private String vihiclespeed;
 	
 	/**
 	 * txid

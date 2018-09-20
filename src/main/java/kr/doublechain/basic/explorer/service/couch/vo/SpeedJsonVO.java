@@ -23,19 +23,19 @@ public class SpeedJsonVO {
 	private String date;
 	
 	/**
-	 * fine
+	 * lat
 	 */
-	private String fine;
+	private String lat;
+	
+	/**
+	 * lng
+	 */
+	private String lng;
 	
 	/**
 	 * location
 	 */
-	private String location;
-	
-	/**
-	 * overspeed
-	 */
-	private Integer overspeed;
+	private String location;		
 	
 	/**
 	 * vihiclespeed

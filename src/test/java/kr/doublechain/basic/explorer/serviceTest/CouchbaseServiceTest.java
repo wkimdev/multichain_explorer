@@ -168,8 +168,7 @@ public class CouchbaseServiceTest {
 		JsonObject test = new JsonObject();
 		test.add("row", jsonObject.getAsJsonObject());
 		System.out.println(test.getAsJsonObject("row").get("height"));
-		
-		//System.out.println(jsonObject);
+
 	} 
 	
 	

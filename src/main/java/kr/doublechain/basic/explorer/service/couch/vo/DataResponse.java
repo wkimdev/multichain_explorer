@@ -38,9 +38,9 @@ public class DataResponse {
 	private String date;
 	
 	/**
-	 * status
+	 * state
 	 */
-	private String status;
+	private String state;
 	
 	
 }

@@ -20,12 +20,7 @@ public class FingerPrintVO {
 	/**
 	 * createtxid
 	 */
-	private String createtxid;
-	
-	/**
-	 * confirm count
-	 */
-	private Integer confirmations;
+	private String createtxid;	
 	
 	/**
 	 * FingerPrint data
@@ -78,5 +73,10 @@ public class FingerPrintVO {
 	 * type
 	 */
 	private String type;
+	
+	/**
+	 * confirm check value
+	 */
+	private BigInteger checkConfirmNum;
 	
 }
