@@ -1,27 +1,19 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
-import java.util.List;
-
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonFormat;
-import com.couchbase.client.deps.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * FPrintListVO for lists
- *
+ * client와 websocket 으로 주고받을 모델
+ * 
  */
 @Getter
 @Setter
-//@JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class DataResponse {
-	
-	/**
-	 * height
-	 */
-	private Integer height;
-	
+		
 	/**
 	 * person
 	 */

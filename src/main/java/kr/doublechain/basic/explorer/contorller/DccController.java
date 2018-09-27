@@ -88,15 +88,7 @@ public class DccController {
 	@GetMapping(value="/getinfo")
     public DccResponse<Object> getBlockByHash() throws Exception {
 		return CommonUtil.Response(new Header(), CommonUtil.convertObjectFromGson(dccService.getInfo()), new Meta());
-    }
-	
-	/**
-	 * confirm check
-	 * @param 
-	 * @return String
-	 * @throws Exception
-	 */
-	
+    }	
     
     /**
 	 * Speeding Stream Search API - 검색어(txId for Stream Search)

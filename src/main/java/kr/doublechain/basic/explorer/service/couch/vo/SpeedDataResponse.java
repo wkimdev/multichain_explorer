@@ -12,14 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SpeedDataResponse {
-	
-	/**
-	 * height
-	 */
-	@JsonIgnore
-	@JsonProperty(value = "height")
-	private Integer height;
+public class SpeedDataResponse {		
 	
 	/**
 	 * vihiclespeed

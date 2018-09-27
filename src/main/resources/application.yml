@@ -82,3 +82,13 @@ couchbase:
     user: jsg0212
     password: dc393939
     ip: 192.168.0.145
+
+#websocket channel
+websocket:
+  broadcast:
+    channel: '/subscribe/broadcast'
+    channel2: '/subscribe/broadcast2'
+  channel: '/ws'
+  subscribe:
+    channel: '/subscribe'
+    
