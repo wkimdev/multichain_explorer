@@ -1,7 +1,6 @@
 package kr.doublechain.basic.explorer.schedule.jobs;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
@@ -20,7 +19,8 @@ import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
-import kr.doublechain.basic.explorer.service.couch.vo.Message;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
 
 /**
  * 
@@ -40,6 +40,12 @@ public class WebsocketScheduler {
 	
 	@Value("${websocket.broadcast.channel2}")
 	private String WEBSOCKET_BROADCAST_CHANNEL2;
+	
+	@Value("${websocket.broadcast.channel3}")
+	private String WEBSOCKET_BROADCAST_CHANNEL3;
+	
+	@Value("${websocket.broadcast.channel4}")
+	private String WEBSOCKET_BROADCAST_CHANNEL4;
 
 	private final SimpMessagingTemplate template;
 	
@@ -69,16 +75,39 @@ public class WebsocketScheduler {
 	}
 	
 	/**
+	 * 6초 간격으로 과속 트랜잭션 리스트 전파
+	 * @throws JsonProcessingException 
+	 * @throws Exception 
+	 */
+	@Scheduled(cron = "0/6 * * * * ?")
+	public void broadcastingSpeedList() throws Exception {
+		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
+		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
+		SpeedListVO speedListVO = new SpeedListVO();
+		speedListVO.setSpeedDataResponse(list);
+		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL3, speedListVO);
+	}
+	
+	/**
 	 * 6초 간격으로 지문인식 트랜잭션 id 카운트 전파
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
 	@Scheduled(cron = "0/6 * * * * ?")
 	public void broadcastingAccessCnt() throws Exception {
-		Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
-		//System.out.println("message : "+message);
-		///LOG.info(message); 	
+		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
 		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
+	}
+	
+	/**
+	 * 6초 간격으로 지문인식 트랜잭션 id 카운트 전파
+	 * @throws JsonProcessingException 
+	 * @throws Exception 
+	 */
+	@Scheduled(cron = "0/6 * * * * ?")
+	public void broadcastingSpeedCnt() throws Exception {
+		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent());		
+		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL4, CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
 	}
 	
 }

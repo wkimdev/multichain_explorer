@@ -88,6 +88,8 @@ websocket:
   broadcast:
     channel: '/subscribe/broadcast'
     channel2: '/subscribe/broadcast2'
+    channel3: '/subscribe/broadcast3'
+    channel4: '/subscribe/broadcast4'
   channel: '/ws'
   subscribe:
     channel: '/subscribe'
