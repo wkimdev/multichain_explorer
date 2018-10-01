@@ -60,8 +60,8 @@ public class DccReceiverJob {
 //			updateBlockService.mergeTx(currentHeight);
 //			LOG.info("===============Update Block : " + currentHeight+" ===============");
 			
-			websocketScheduler.broadcastingMessage();
-			websocketScheduler.broadcastingAccessCnt();
+//			websocketScheduler.broadcastingMessage();
+//			websocketScheduler.broadcastingAccessCnt();
 //		}
 		
 		
