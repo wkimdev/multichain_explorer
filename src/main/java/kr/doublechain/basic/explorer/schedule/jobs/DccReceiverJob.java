@@ -43,28 +43,38 @@ public class DccReceiverJob {
     public void dccReceiverJob() throws Exception {
         LOG.info("=============== this is dccReceiverJob start!!! ===============");
         
-//        BigInteger currentHeight = null;
-//		JsonObject currentBlock = updateBlockService.init();
-//		
-//		currentHeight = updateBlockService.checkBlock(currentBlock);
-//		currentBlock = dccService.getBlock(currentHeight);
-//		
-//		if (currentBlock.has("nextblockhash")) {
-//			updateBlockService.mergeBlock(currentBlock);
-//			
-//			// 현재 블록 넘버 + 1 update
-//			currentHeight = currentHeight.add(new BigInteger("1"));
-//			currentBlock = dccService.getBlock(currentHeight);
-//
-//			updateBlockService.mergeBlock(currentBlock);
-//			updateBlockService.mergeTx(currentHeight);
-//			LOG.info("===============Update Block : " + currentHeight+" ===============");
+       BigInteger currentHeight = null;
+       JsonObject currentBlock = updateBlockService.init();
+		
+		currentHeight = updateBlockService.checkBlock(currentBlock);
+		currentBlock = dccService.getBlock(currentHeight);
+		
+		websocketScheduler.broadcastingMessage();
+		websocketScheduler.broadcastingSpeedList();
+		websocketScheduler.broadcastingAccessCnt();
+		websocketScheduler.broadcastingAccessCnt();
+		
+			if (currentBlock.has("nextblockhash")) {
+			updateBlockService.mergeBlock(currentBlock);
+			
+			// 현재 블록 넘버 + 1 update		
+			currentHeight = currentHeight.add(new BigInteger("1"));
+			currentBlock = dccService.getBlock(currentHeight);
+
+			updateBlockService.mergeBlock(currentBlock);
+			updateBlockService.mergeTx(currentHeight);
+			LOG.info("===============Update Block : " + currentHeight+" ===============");
+			
+			LOG.info("=============== this is websocket data list start!!! ===============");
 			
 //			websocketScheduler.broadcastingMessage();
+//			websocketScheduler.broadcastingSpeedList();
 //			websocketScheduler.broadcastingAccessCnt();
-//		}
-		
-		
+//			websocketScheduler.broadcastingAccessCnt();
+			
+			LOG.info("=============== this is websocket data list end!!! ===============");
+			
+		}
     }
 	
 }

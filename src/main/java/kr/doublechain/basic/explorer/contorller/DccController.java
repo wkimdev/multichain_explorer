@@ -262,7 +262,7 @@ public class DccController {
 	 @ApiOperation(value = "2주 기간 날짜 리스트", notes = "현재 날짜 기준 2주간 date.")
      @RequestMapping("/twoweeks")
      @ResponseBody
-     public Object getTwoWeeksDate() throws Exception{
+     public Object getTwoWeeksDate() throws Exception {
      	return CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate());
      }
 	

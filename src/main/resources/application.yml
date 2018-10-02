@@ -26,6 +26,7 @@ spring:
 # was port override set vm option : -Dserver.port=8080    
 server:
   port: "8081"
+  address: "192.168.0.142"
   servlet-path: /
   compression:
     enabled: "true"
