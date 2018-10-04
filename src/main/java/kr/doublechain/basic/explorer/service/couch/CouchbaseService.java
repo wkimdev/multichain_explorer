@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.catalina.authenticator.SpnegoAuthenticator.AuthenticateAction;
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.auth.Authenticator;
+import com.couchbase.client.java.auth.Credential;
+import com.couchbase.client.java.auth.CredentialContext;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
@@ -62,7 +66,6 @@ public class CouchbaseService {
     private String bucketPassword;
 	
 	public Bucket connectBucket(String bucketName) {
-		//couchbaseCluster.authenticate(auth)
 		couchbaseCluster.authenticate(userName, bucketPassword);
 		return couchbaseCluster.openBucket(bucketName);
 	}
@@ -71,25 +74,14 @@ public class CouchbaseService {
 	 * 최신 블록값 호출
 	 */
     public JsonObject selectLastBlock() throws Exception {
-		Bucket bucket = null;
-		JsonObject jsonObject = null;
-    	
-    	try {
-    		bucket = connectBucket(blockBucketName);
-            N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height").orderBy(Sort.desc("height")).limit(1).offset(0));
-            Iterator<N1qlQueryRow> result = query.iterator();
-            while(result.hasNext()) {
-                N1qlQueryRow nqr = result.next();
-                jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
-            }
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-    	finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		} 
+    	Bucket bucket = connectBucket(blockBucketName);
+        N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height").orderBy(Sort.desc("height")).limit(1).offset(0));
+        Iterator<N1qlQueryRow> result = query.iterator();
+        JsonObject jsonObject = null;
+        while(result.hasNext()) {
+            N1qlQueryRow nqr = result.next();
+            jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
+        }
     	return jsonObject;
     }
     
@@ -102,26 +94,14 @@ public class CouchbaseService {
 	 */
      public JsonObject selectSpeedBySearch(String search) throws Exception {
     	  JsonObject jsonObject = null;
-    	  Bucket streambucket = null;
-    	  
-    	  try {
-    		  streambucket = connectBucket(streamBucketName);
-        	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" and txid = \"" + search + "\""));
-        	  Iterator<N1qlQueryRow> result = query.iterator();    	  
-        	      	  
-        	  while(result.hasNext()) {
-                N1qlQueryRow nqr = result.next();
-                jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-        	  }
-        	  
-		  } catch (Exception e) {
-			  e.printStackTrace();
-			  
-		  } finally {
-			  if(streambucket != null) {
-				  streambucket.close();
-			  }
-		  }
+    	  Bucket streambucket = connectBucket(streamBucketName);
+    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" and txid = \"" + search + "\""));
+    	  Iterator<N1qlQueryRow> result = query.iterator();    	  
+    	      	  
+    	  while(result.hasNext()) {
+            N1qlQueryRow nqr = result.next();
+            jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+    	  }
     	  return jsonObject;
       }
      
@@ -133,27 +113,16 @@ public class CouchbaseService {
  	 * @throws Exception
  	 */
      public JsonObject selectFingerPrintBySearch(String search) throws Exception {
-    	 Bucket streambucket = null;
      	 JsonObject jsonObject = null;
-	 	 
-	 	 try {
-	 		streambucket = connectBucket(streamBucketName);
-	 		N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
-		 	Iterator<N1qlQueryRow> result = query.iterator();
-		 	  
-		 	while(result.hasNext()) {
-		        N1qlQueryRow nqr = result.next();
-		        jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-		 	}
-	 	 } catch (Exception e) {
-			e.printStackTrace();
-			
-		 } finally {
-			 if(streambucket != null) {
-				 streambucket.close();
-			 }
-		}
-	 	return jsonObject;
+	 	 Bucket streambucket = connectBucket(streamBucketName);
+	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
+	 	 Iterator<N1qlQueryRow> result = query.iterator();
+	 	  
+	 	 while(result.hasNext()) {
+	        N1qlQueryRow nqr = result.next();
+	        jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
+	 	 }
+	 	 return jsonObject;
       }
      
      /**
@@ -163,32 +132,19 @@ public class CouchbaseService {
       * @throws Exception
       */
      public JsonObject selectSpeedCntByCurrent() throws Exception {
-    	Bucket bucket = null;
-    	JsonObject jsonObject = new JsonObject();
-    	 
-    	try {
-    		bucket = connectBucket(streamBucketName);
-         	// time기준으로 count할때 사용함.
-         	// long currentTime = System.currentTimeMillis()/1000;
-         	// LOG.info("currentTime target :"+currentTime);
-         	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
-         	Iterator<N1qlQueryRow> result = query.iterator();
-         	
-         	try {
-         		N1qlQueryRow nqr = result.next();
-             	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-         	} catch(Exception e) {
-         		e.printStackTrace();
-         	}
-         	
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-    	
+     	Bucket bucket = connectBucket(streamBucketName);
+     	// time기준으로 count할때 사용함.
+     	// long currentTime = System.currentTimeMillis()/1000;
+     	// LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
      	return jsonObject;
      }
      
@@ -199,28 +155,16 @@ public class CouchbaseService {
       * @throws Exception
       */
      public JsonObject selectFingerPrintCntByCurrent() throws Exception {
-    	Bucket bucket = null;
-    	JsonObject jsonObject = new JsonObject();
-    	
-    	try {
-    		bucket = connectBucket(streamBucketName);     	
-         	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
-         	Iterator<N1qlQueryRow> result = query.iterator();
-         	try {
-         		N1qlQueryRow nqr = result.next();
-             	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-         	} catch(Exception e) {
-         		e.printStackTrace();
-         	}
-         	
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-     	
+     	Bucket bucket = connectBucket(streamBucketName);     	
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
      	return jsonObject;
      }
      
@@ -231,26 +175,13 @@ public class CouchbaseService {
  	 * @throws Exception
  	 */
      public JSONArray selectStreamBySpeed() throws Exception {
-    	Bucket bucket = null;
-    	JSONArray jsonList = new JSONArray(); 
-    	 
-    	try {
-    		bucket = connectBucket(streamBucketName);
-         	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by data.json.date desc limit 10 "));
-         	Iterator<N1qlQueryRow> result = query.iterator();
-         	
-         	while(result.hasNext()) {
-         		jsonList.add(result.next());
-         	}
-         	
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-     	
+     	Bucket bucket = connectBucket(streamBucketName);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by data.json.date desc limit 10 "));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JSONArray jsonList = new JSONArray();
+     	while(result.hasNext()) {
+     		jsonList.add(result.next());
+     	}
      	return jsonList;
      }
      
@@ -261,24 +192,13 @@ public class CouchbaseService {
  	 * @throws Exception
  	 */
      public JSONArray selectStreamByFingerPrint() throws Exception {
-    	Bucket bucket = null;
-    	JSONArray jsonList = new JSONArray();
-    	 
-    	try {
-    		bucket = connectBucket(streamBucketName);
-         	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by data.json.date desc limit 10 "));
-         	Iterator<N1qlQueryRow> result = query.iterator();
-         	while(result.hasNext()) {
-         		jsonList.add(result.next());
-         	}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-		   if(bucket != null) {
-			   bucket.close();
-		   }
-		}
-    	
+     	Bucket bucket = connectBucket(streamBucketName);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by data.json.date desc limit 10 "));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JSONArray jsonList = new JSONArray();
+     	while(result.hasNext()) {
+     		jsonList.add(result.next());
+     	}
      	return jsonList;
      }
      
@@ -289,30 +209,19 @@ public class CouchbaseService {
       * @throws Exception
       */
      public JsonObject selectTwoWeeksSpeeding() throws Exception {
-    	 Bucket bucket = null;
-    	 JsonObject jsonObject = new JsonObject();
     	 
-    	 try {
-    		bucket = connectBucket(streamBucketName);
-	     	long currentTime = System.currentTimeMillis()/1000;
-	     	LOG.info("currentTime target :"+currentTime);
-	     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
-	     	Iterator<N1qlQueryRow> result = query.iterator();
-	     	
-	     	try {
-	     		N1qlQueryRow nqr = result.next();
-	         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-	     	} catch(Exception e) {
-	     		e.printStackTrace();
-	     	}
-    	 } catch (Exception e) {
-			e.printStackTrace();
-		 } finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		 }
-    	 
+     	Bucket bucket = connectBucket(streamBucketName);
+     	long currentTime = System.currentTimeMillis()/1000;
+     	LOG.info("currentTime target :"+currentTime);
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
+     	Iterator<N1qlQueryRow> result = query.iterator();
+     	JsonObject jsonObject = new JsonObject();
+     	try {
+     		N1qlQueryRow nqr = result.next();
+         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+     	} catch(Exception e) {
+     		e.printStackTrace();
+     	}
      	return jsonObject;
      }
      
@@ -325,38 +234,26 @@ public class CouchbaseService {
      */
     public JSONArray selectTwoWeeksSpeedCnt() throws Exception {
     	JsonObject jsonObject = null;
-    	JSONArray jsonList = new JSONArray();
-    	Bucket bucket = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		Date date = new Date();	// current date
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, -13); //before 2 weeks date
     	
-    	try {
-        	bucket = connectBucket(streamBucketName);    	
-        	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-    		Date date = new Date();	// current date
-    		
-    		Calendar cal = Calendar.getInstance();
-    		cal.setTime(date);
-    		cal.add(Calendar.DATE, -13); //before 2 weeks date
-        	
-    		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
-    											" from `" + streamBucketName + "` " +											
-    											" where streamKeys = \"\\\"speeding\\\"\" " + 
-    											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
-    											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
-    											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
-    		
-        	Iterator<N1qlQueryRow> result = query.iterator();
-        	
-        	while(result.hasNext()) {
-        		jsonList.add(result.next());
-        	}
-    	} catch (Exception e) {
-			e.printStackTrace();
-    	} finally {
-    		if(bucket != null) {
-    			bucket.close();
-    		}
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
+											" from `" + streamBucketName + "` " +											
+											" where streamKeys = \"\\\"speeding\\\"\" " + 
+											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
+		
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
     	}
-
     	return jsonList;
     }
     
@@ -367,39 +264,27 @@ public class CouchbaseService {
      * @throws Exception
      */
     public JSONArray selectTwoWeeksFingerPrints() throws Exception {
-    	Bucket bucket = null;
     	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		Date date = new Date();	// current date
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, -13); //before 2 weeks date
+    	
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as fingerPrintCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
+											" from `" + streamBucketName + "` " +											
+											" where streamKeys = \"\\\"inout\\\"\" " + 
+											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
+		
+    	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
-    	
-    	try {
-        	bucket = connectBucket(streamBucketName);    	
-        	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-    		Date date = new Date();	// current date
-    		
-    		Calendar cal = Calendar.getInstance();
-    		cal.setTime(date);
-    		cal.add(Calendar.DATE, -13); //before 2 weeks date
-        	
-    		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as fingerPrintCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
-    											" from `" + streamBucketName + "` " +											
-    											" where streamKeys = \"\\\"inout\\\"\" " + 
-    											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
-    											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
-    											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
-    		
-        	Iterator<N1qlQueryRow> result = query.iterator();
-        	
-        	while(result.hasNext()) {
-        		jsonList.add(result.next());
-        	}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-    	
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
     	return jsonList;
     }
     
@@ -412,54 +297,28 @@ public class CouchbaseService {
 	 * @throws Exception
 	 */
     public JSONArray selectBlockByheight() throws Exception {
-    	Bucket bucket = null;
+    	Bucket bucket = connectBucket(blockBucketName);
+    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, time, array_count(tx) as speeding FROM `" + blockBucketName + "` order by height desc limit 7"));
+    	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
-    	
-    	try {
-    		bucket = connectBucket(blockBucketName);
-        	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, time, array_count(tx) as speeding FROM `" + blockBucketName + "` order by height desc limit 7"));
-        	Iterator<N1qlQueryRow> result = query.iterator();
-        	
-        	while(result.hasNext()) {
-        		jsonList.add(result.next());
-        	}
-        	
-    	} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
     	return jsonList;
     }
     
     public JsonObject selectBlock(BigInteger blockNumber) throws Exception {
-    	Bucket bucket = null;
-    	JsonObject jsonObject = null;
-    	
-    	try {
-    		bucket = connectBucket(blockBucketName);
-        	N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height=" + blockNumber.toString()).orderBy(Sort.desc("height")).limit(1).offset(0));
-            Iterator<N1qlQueryRow> result = query.iterator();
-            
-            while(result.hasNext()) {
-                N1qlQueryRow nqr = result.next();
-                //jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
-                //jsonObject.add("Blocks", CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString()));
-            }
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-    	
-    	
+    	Bucket bucket = connectBucket(blockBucketName);
+    	N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height=" + blockNumber.toString()).orderBy(Sort.desc("height")).limit(1).offset(0));
+        Iterator<N1qlQueryRow> result = query.iterator();
+        JsonObject jsonObject = null;
+        while(result.hasNext()) {
+            N1qlQueryRow nqr = result.next();
+            //jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());
+            //jsonObject.add("Blocks", CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString()));
+        }
     	return null;
     }
-
     
     /**
 	 * block 정보 업데이트 - 쓰레드가 돌면서 호출을 한다.
@@ -470,93 +329,33 @@ public class CouchbaseService {
 	 * @throws Exception
 	 */
     public void upsertBucketBlock(JsonObject jsonObject) throws Exception {
-    	Bucket bucket = null;
-    	try {
-    		bucket = connectBucket(blockBucketName);
-            bucket.upsert(RawJsonDocument.create(jsonObject.get("height").toString(), jsonObject.toString()));
-    	} catch (Exception e) {
-    		e.printStackTrace();
-		} finally {
-			if(bucket != null ) {
-				bucket.close();
-			}
-		}
+    	Bucket bucket = connectBucket(blockBucketName);
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("height").toString(), jsonObject.toString()));
     }
     
     public void upsertBucketTransaction(JsonObject jsonObject) throws Exception {
-    	Bucket bucket = null;;
-    	
-    	try {
-    		bucket = connectBucket(txBucketName);
-            bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if( bucket != null ) {
-				bucket.close();
-			}
-		}
+    	Bucket bucket = connectBucket(txBucketName);
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
     }
     
     public void upsertBucketStream(JsonObject jsonObject) throws Exception {
-    	Bucket bucket = null;
-    	
-    	try{
-    		bucket = connectBucket(streamBucketName);
-            bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
-    	} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if( bucket != null ) {
-				bucket.close();
-			}
-		}
+    	Bucket bucket = connectBucket(streamBucketName);
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
     }
     
     public void deleteBlock(BigInteger blockNumber) throws Exception {
-    	Bucket bucket = null;
-    	
-    	try {
-    		bucket = connectBucket(blockBucketName);
-        	bucket.query(N1qlQuery.simple("DELETE FROM `" + blockBucketName + "` WHERE height = " + blockNumber.toString()));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-    	
+    	Bucket bucket = connectBucket(blockBucketName);
+    	bucket.query(N1qlQuery.simple("DELETE FROM `" + blockBucketName + "` WHERE height = " + blockNumber.toString()));
     }
     
     public void deleteTx(String txid) throws Exception {
-    	Bucket bucket = null;
-    	try {
-    		bucket = connectBucket(txBucketName);
-        	bucket.query(N1qlQuery.simple("DELETE FROM `" + txBucketName + "` WHERE txid = \"" + txid + "\""));
-    	} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
-    	
+    	Bucket bucket = connectBucket(txBucketName);
+    	bucket.query(N1qlQuery.simple("DELETE FROM `" + txBucketName + "` WHERE txid = \"" + txid + "\""));
     }
     
     public void deleteStrean(String txid) throws Exception {
-    	Bucket bucket = null;
-    	
-    	try {
-    		bucket = connectBucket(streamBucketName);
-        	bucket.query(N1qlQuery.simple("DELETE FROM `" + streamBucketName + "` WHERE txid = \"" + txid + "\""));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(bucket != null) {
-				bucket.close();
-			}
-		}
+    	Bucket bucket = connectBucket(streamBucketName);
+    	bucket.query(N1qlQuery.simple("DELETE FROM `" + streamBucketName + "` WHERE txid = \"" + txid + "\""));
     }
 
 }
