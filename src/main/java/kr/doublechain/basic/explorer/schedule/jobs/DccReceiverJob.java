@@ -41,7 +41,7 @@ public class DccReceiverJob {
 	
     @Scheduled(cron = "*/6 * * * * *")
     public void dccReceiverJob() throws Exception {
-        LOG.info("=============== this is dccReceiverJob start!!! ===============");
+       LOG.info("=============== this is dccReceiverJob start!!! ===============");
         
        BigInteger currentHeight = null;
        JsonObject currentBlock = updateBlockService.init();
@@ -49,10 +49,10 @@ public class DccReceiverJob {
 		currentHeight = updateBlockService.checkBlock(currentBlock);
 		currentBlock = dccService.getBlock(currentHeight);
 		
-		websocketScheduler.broadcastingMessage();
-		websocketScheduler.broadcastingSpeedList();
-		websocketScheduler.broadcastingAccessCnt();
-		websocketScheduler.broadcastingAccessCnt();
+//		websocketScheduler.broadcastingMessage();
+//		websocketScheduler.broadcastingSpeedList();
+//		websocketScheduler.broadcastingAccessCnt();
+//		websocketScheduler.broadcastingAccessCnt();
 		
 			if (currentBlock.has("nextblockhash")) {
 			updateBlockService.mergeBlock(currentBlock);
@@ -65,14 +65,14 @@ public class DccReceiverJob {
 			updateBlockService.mergeTx(currentHeight);
 			LOG.info("===============Update Block : " + currentHeight+" ===============");
 			
-			LOG.info("=============== this is websocket data list start!!! ===============");
+			LOG.info("=============== websocket start!!! ===============");
 			
-//			websocketScheduler.broadcastingMessage();
-//			websocketScheduler.broadcastingSpeedList();
-//			websocketScheduler.broadcastingAccessCnt();
-//			websocketScheduler.broadcastingAccessCnt();
+			websocketScheduler.broadcastingMessage();
+			websocketScheduler.broadcastingSpeedList();
+			websocketScheduler.broadcastingAccessCnt();
+			websocketScheduler.broadcastingAccessCnt();
 			
-			LOG.info("=============== this is websocket data list end!!! ===============");
+			LOG.info("===============  end!!! ===============");
 			
 		}
     }

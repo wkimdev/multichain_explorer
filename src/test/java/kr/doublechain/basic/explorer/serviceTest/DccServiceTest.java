@@ -23,7 +23,7 @@ public class DccServiceTest {
 	@Autowired
 	DccService dccService;
 	
-//	@Test
+	@Test
 	public void getInfoCall() throws Exception {
 		for (int i = 0; i < 10000; i++) {
 			dccService.getInfo();
@@ -39,7 +39,8 @@ public class DccServiceTest {
 	
 	//@Test
 	public void getBlockByHashTest() throws Exception {
-		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
+		//System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("00d31ab5d89657ffe7a0eedf13c8a138eff15603f469882280cb44e3632a9177")));
+		System.out.println(CommonUtil.convertJsonStringFromGson(dccService.getBlock("05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6")));
 	}
 	
 //	@Test
@@ -84,7 +85,7 @@ public class DccServiceTest {
 		System.out.println(dccService.RPCCall("gettxoutdata", list));
 	}
 	
-	@Test
+	//@Test
 	public void getConfirmationCheck() throws Exception {
 		System.out.println(dccService.confirmationCheck());
 	}

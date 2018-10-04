@@ -37,14 +37,16 @@ public class CouchbaseServiceTest {
 	
 	//@Test
 	public void upsertBucketBlockTest() throws Exception {
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 10000; i++) {
 			couchbaseService.upsertBucketBlock(dccService.getBlock(new BigInteger(i + "")));
+			System.out.println("i :"+i);
 		}
 	}
 	
 	//@Test
 	public void upsertBucketTransactionTest() throws Exception {
-		couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
+		//couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
+		couchbaseService.upsertBucketTransaction(dccService.getTx("00007d3ee17c6b64de0dfefe903ab325905ee2b062a442f0d6cbd187f80256c2"));		
 	}	
 	
 	//@Test
@@ -52,9 +54,9 @@ public class CouchbaseServiceTest {
 		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight()));
 	}
 	
-	//@Test
+	//@Test 
 	public void selectBlockTest() throws Exception {
-		System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlock(new BigInteger("0"))));
+		//System.out.println(CommonUtil.convertJsonStringFromGson(couchbaseService.selectBlock(new BigInteger("0"))));
 	}
 
 //	@Test
@@ -109,7 +111,7 @@ public class CouchbaseServiceTest {
 		//"1887"
 		System.out.println(couchbaseService.selectFingerPrintBySearch("214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f"));
 	}
-	
+		
 	//@Test
 	public void selectStreamByFingerPrint() throws Exception {
 		// array 두개..
@@ -154,7 +156,7 @@ public class CouchbaseServiceTest {
 		//System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
 	}
 	
-	@Test
+	//@Test
 	public void selectLastBlockTest() throws Exception {
 		JsonObject getLastBlock = couchbaseService.selectLastBlock();		
 		JsonObject test = new JsonObject();
@@ -164,12 +166,16 @@ public class CouchbaseServiceTest {
 	
 	//@Test
 	public void selectSpeedBySearch() throws Exception {
-		JsonObject jsonObject = couchbaseService.selectSpeedBySearch("62fdda6b30e34ff654a9ae5062a7257f501bb91d7b39bd28b5bf75f44374c996");
+		JsonObject jsonObject = couchbaseService.selectSpeedBySearch("f663e2a895db9fa235a940182fb67eada1e361e79b4998730fa9782e70f0a797");
 		JsonObject test = new JsonObject();
 		test.add("row", jsonObject.getAsJsonObject());
 		System.out.println(test.getAsJsonObject("row").get("height"));
 
 	} 
 	
+	//@Test
+	public void selectStreamBySpeed() throws Exception {
+		System.out.println(couchbaseService.selectStreamBySpeed());
+	} 
 	
 }
