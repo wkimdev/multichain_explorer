@@ -1,9 +1,5 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
-import java.math.BigInteger;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.Setter;
 

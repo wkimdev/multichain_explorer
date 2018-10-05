@@ -2,18 +2,13 @@ package kr.doublechain.basic.explorer.service.couch;
 
 import static com.couchbase.client.java.query.Select.select;
 
-
-
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
-import org.apache.catalina.authenticator.SpnegoAuthenticator.AuthenticateAction;
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.auth.Authenticator;
-import com.couchbase.client.java.auth.Credential;
-import com.couchbase.client.java.auth.CredentialContext;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
@@ -33,10 +25,8 @@ import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.dsl.Sort;
 import com.google.gson.JsonObject;
 
-import groovy.util.logging.Log;
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.contorller.DccController;
-import scala.util.control.Exception.Finally;
 
 /**
  * CouchbaseService
@@ -49,7 +39,7 @@ public class CouchbaseService {
 	
 	@Autowired
 	private Cluster couchbaseCluster;
-
+	
 	@Value("${couchbase.bucket.blocks.name}")
     private String blockBucketName;
     
@@ -65,6 +55,7 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.password}")
     private String bucketPassword;
 	
+    //
 	public Bucket connectBucket(String bucketName) {
 		couchbaseCluster.authenticate(userName, bucketPassword);
 		return couchbaseCluster.openBucket(bucketName);

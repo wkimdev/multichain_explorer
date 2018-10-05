@@ -1,22 +1,17 @@
 package kr.doublechain.basic.explorer.schedule.jobs;
 
 import java.math.BigInteger;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 
 import com.google.gson.JsonObject;
 
-import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.schedule.UpdateBlockService;
-import kr.doublechain.basic.explorer.service.couch.vo.Message;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 /**
@@ -49,11 +44,6 @@ public class DccReceiverJob {
 		currentHeight = updateBlockService.checkBlock(currentBlock);
 		currentBlock = dccService.getBlock(currentHeight);
 		
-//		websocketScheduler.broadcastingMessage();
-//		websocketScheduler.broadcastingSpeedList();
-//		websocketScheduler.broadcastingAccessCnt();
-//		websocketScheduler.broadcastingAccessCnt();
-		
 			if (currentBlock.has("nextblockhash")) {
 			updateBlockService.mergeBlock(currentBlock);
 			
@@ -64,15 +54,6 @@ public class DccReceiverJob {
 			updateBlockService.mergeBlock(currentBlock);
 			updateBlockService.mergeTx(currentHeight);
 			LOG.info("===============Update Block : " + currentHeight+" ===============");
-			
-			LOG.info("=============== websocket start!!! ===============");
-			
-			websocketScheduler.broadcastingMessage();
-			websocketScheduler.broadcastingSpeedList();
-			websocketScheduler.broadcastingAccessCnt();
-			websocketScheduler.broadcastingAccessCnt();
-			
-			LOG.info("===============  end!!! ===============");
 			
 		}
     }
