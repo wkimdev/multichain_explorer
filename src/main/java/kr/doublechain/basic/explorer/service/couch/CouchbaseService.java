@@ -121,7 +121,7 @@ public class CouchbaseService {
      	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();	// current date
  		
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(" SELECT count(txid) as speedCnt FROM `" + streamBucketName + 
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(" SELECT count(*) as speedCnt FROM `" + streamBucketName + 
 											 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
      										 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
      	Iterator<N1qlQueryRow> result = query.iterator();
@@ -146,7 +146,7 @@ public class CouchbaseService {
      	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();	// current date
 		
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + 
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
  											"` WHERE streamKeys = \"\\\"inout\\\"\" " + 
      										"  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
      	Iterator<N1qlQueryRow> result = query.iterator();
@@ -223,14 +223,14 @@ public class CouchbaseService {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DATE, -13); //before 2 weeks date
-    	String sql = " select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
+    	String sql = " select count(*) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
 				"\n from `" + streamBucketName + "` " +											
 				"\n where streamKeys = \"\\\"speeding\\\"\" " + 
 				"\n and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
 				"\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
-				"\n order by data.json.date DESC ";
+				"\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		
+		LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
@@ -255,7 +255,7 @@ public class CouchbaseService {
 		cal.setTime(date);
 		cal.add(Calendar.DATE, -13); //before 2 weeks date
     	
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as fingerPrintCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(*) as fingerPrintCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'),8,2) as date  " + 
 											" from `" + streamBucketName + "` " +											
 											" where streamKeys = \"\\\"inout\\\"\" " + 
 											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
