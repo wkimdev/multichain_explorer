@@ -65,7 +65,7 @@ public class WebsocketScheduler {
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
-	@Scheduled(cron = "0/6 * * * * ?")
+	@Scheduled(cron = "0/1 * * * * ?")
 	public void broadcastingMessage() throws Exception {
 		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint();
 		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
@@ -79,7 +79,7 @@ public class WebsocketScheduler {
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
-	@Scheduled(cron = "0/6 * * * * ?")
+	@Scheduled(cron = "0/1 * * * * ?")
 	public void broadcastingSpeedList() throws Exception {
 		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
 		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
@@ -93,7 +93,7 @@ public class WebsocketScheduler {
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
-	@Scheduled(cron = "0/6 * * * * ?")
+	@Scheduled(cron = "0/1 * * * * ?")
 	public void broadcastingAccessCnt() throws Exception {
 		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
 		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
@@ -104,7 +104,7 @@ public class WebsocketScheduler {
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
-	@Scheduled(cron = "0/6 * * * * ?")
+	@Scheduled(cron = "0/1 * * * * ?")
 	public void broadcastingSpeedCnt() throws Exception {
 		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent());		
 		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL4, CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));

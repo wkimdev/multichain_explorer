@@ -49,15 +49,8 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.streams.name}")
     private String streamBucketName;
     
-    @Value("${couchbase.bucket.user}")
-    private String userName;
-
-    @Value("${couchbase.bucket.password}")
-    private String bucketPassword;
-	
     //
 	public Bucket connectBucket(String bucketName) {
-		couchbaseCluster.authenticate(userName, bucketPassword);
 		return couchbaseCluster.openBucket(bucketName);
 	}
 	
@@ -86,7 +79,7 @@ public class CouchbaseService {
      public JsonObject selectSpeedBySearch(String search) throws Exception {
     	  JsonObject jsonObject = null;
     	  Bucket streambucket = connectBucket(streamBucketName);
-    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" and txid = \"" + search + "\""));
+    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE META(`"+ streamBucketName + "`).id = \"" + search + "\""));
     	  Iterator<N1qlQueryRow> result = query.iterator();    	  
     	      	  
     	  while(result.hasNext()) {
@@ -106,7 +99,7 @@ public class CouchbaseService {
      public JsonObject selectFingerPrintBySearch(String search) throws Exception {
      	 JsonObject jsonObject = null;
 	 	 Bucket streambucket = connectBucket(streamBucketName);
-	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" and txid = \""+ search +"\""));
+	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE META(`"+ streamBucketName + "`).id = \""+ search +"\""));
 	 	 Iterator<N1qlQueryRow> result = query.iterator();
 	 	  
 	 	 while(result.hasNext()) {
@@ -326,12 +319,12 @@ public class CouchbaseService {
     
     public void upsertBucketTransaction(JsonObject jsonObject) throws Exception {
     	Bucket bucket = connectBucket(txBucketName);
-        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").getAsString(), jsonObject.toString()));
     }
     
     public void upsertBucketStream(JsonObject jsonObject) throws Exception {
     	Bucket bucket = connectBucket(streamBucketName);
-        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").toString(), jsonObject.toString()));
+        bucket.upsert(RawJsonDocument.create(jsonObject.get("txid").getAsString(), jsonObject.toString()));
     }
     
     public void deleteBlock(BigInteger blockNumber) throws Exception {
