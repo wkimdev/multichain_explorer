@@ -1,6 +1,7 @@
 package kr.doublechain.basic.explorer.serviceTest;
 
 import java.math.BigInteger;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,7 +23,6 @@ import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
-import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 @RunWith(SpringRunner.class)
@@ -113,47 +113,36 @@ public class CouchbaseServiceTest {
 	}
 		
 	//@Test
-	public void selectStreamByFingerPrint() throws Exception {
-		// array 두개..
-		
-		String test = "[{\"height\":2124,\"txid\":\"f6af76c8bcd4eb586716c2b6f965d874c93977dfd9477d1441bd31bbf5a497d8\",\"who\":\"KW\"},{\"height\":2116,\"txid\":\"214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f\",\"who\":\"Jeongwon\"},{\"height\":2106,\"txid\":\"ab1b30b7be916591191d0e3ef4bbaaa3256e4d228b11dbd92469864478b97ea7\",\"who\":\"Seongkuk\"}]";
-		
-		FPrintListVO vo = new FPrintListVO(); 
-		ObjectMapper mapper = new ObjectMapper();
-//		List<FPrintListVO.DataResponse> list = mapper.readValue(test, List.class);
-		
-//		System.out.println(list);
-//			List<HashMap> list1 = mapper.readValue(content, clazz);
-//			HashMap map list2 = list1.get(0);
-//			return object;
-		
-		//System.out.println(couchbaseService.selectStreamByFingerPrint());
-	}
-	
-	//@Test
 	public void selectCurrentSpeedingCnt() throws Exception {
 		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
 	}
 	
 	//@Test
+	public void selectCurrentDoorAccessCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
+	}
+	
+	//@Test
 	public void selectSpeedingCnt() throws Exception {
 		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksSpeedCnt()));
+		
 	}
 	
 	//@Test
 	public void selectFingerPrintCnt() throws Exception {
     	
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
-		Date date = new Date();	// current date
+    	//DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+//    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//		Date date = new Date();	// current date
 		
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		cal.add(Calendar.DATE, -13); //before 2 weeks date
+//		Calendar cal = Calendar.getInstance();
+//		cal.setTime(date);
+//		cal.add(Calendar.DATE, -13); //before 2 weeks date
 		
-		System.out.println(dateFormat.format(cal.getTime()));
-		System.out.println(dateFormat.format(date));
+		//System.out.println(dateFormat.format(cal.getTime()));
+//		System.out.println(dateFormat.format(date)); //
 		
-		//System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
+		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectTwoWeeksFingerPrints()));
 	}
 	
 	//@Test
@@ -173,7 +162,7 @@ public class CouchbaseServiceTest {
 
 	} 
 	
-	//@Test
+	@Test
 	public void selectStreamBySpeed() throws Exception {
 		System.out.println(couchbaseService.selectStreamBySpeed());
 	} 

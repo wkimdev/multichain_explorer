@@ -28,6 +28,7 @@ import com.google.gson.JsonObject;
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.contorller.DccController;
 
+
 /**
  * CouchbaseService
  *
@@ -117,10 +118,12 @@ public class CouchbaseService {
       */
      public JsonObject selectSpeedCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	// time기준으로 count할때 사용함.
-     	// long currentTime = System.currentTimeMillis()/1000;
-     	// LOG.info("currentTime target :"+currentTime);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as speedCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"speeding\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+ 		
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(" SELECT count(txid) as speedCnt FROM `" + streamBucketName + 
+											 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
+     										 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -140,7 +143,12 @@ public class CouchbaseService {
       */
      public JsonObject selectFingerPrintCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);     	
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND DATE_FORMAT_STR(data.json.date, '1111-11-11') = CLOCK_STR('1111-11-11')"));
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+		
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + 
+ 											"` WHERE streamKeys = \"\\\"inout\\\"\" " + 
+     										"  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -160,7 +168,15 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamBySpeed() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName + "` where streamKeys = \"\\\"speeding\\\"\" order by data.json.date desc limit 10 "));
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+		
+     	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
+				 "` where streamKeys = \"\\\"speeding\\\"\" " +
+				 "\n  AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+     			 "\n  order by data.json.date desc limit 10 ";
+     	
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
      	while(result.hasNext()) {
@@ -177,7 +193,12 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" order by data.json.date desc limit 10 "));
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+		
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
+						     				"\n  AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+						 					"\n order by data.json.date desc limit 10 "));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
      	while(result.hasNext()) {
@@ -186,32 +207,9 @@ public class CouchbaseService {
      	return jsonList;
      }
      
-     /**
-      * 2 weeks date 조회
-      * 
-      * @return JsonObject
-      * @throws Exception
-      */
-     public JsonObject selectTwoWeeksSpeeding() throws Exception {
-    	 
-     	Bucket bucket = connectBucket(streamBucketName);
-     	long currentTime = System.currentTimeMillis()/1000;
-     	LOG.info("currentTime target :"+currentTime);
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(txid) as fingerPrintCnt FROM `" + streamBucketName + "` WHERE streamKeys = \"\\\"inout\\\"\" AND MILLIS_TO_STR(time, '1111-11-11') =  MILLIS_TO_STR(" + currentTime + ", '1111-11-11')"));
-     	Iterator<N1qlQueryRow> result = query.iterator();
-     	JsonObject jsonObject = new JsonObject();
-     	try {
-     		N1qlQueryRow nqr = result.next();
-         	jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
-     	} catch(Exception e) {
-     		e.printStackTrace();
-     	}
-     	return jsonObject;
-     }
-     
     /**
      * 2주간 발생된 일별 과속단속 카메라 촬영 건수.
-     * TODO 일별 stream count를 시키기.
+     * 일별 stream count를 시키기.
      * 
      * @return JsonObject
      * @throws Exception
@@ -225,13 +223,13 @@ public class CouchbaseService {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DATE, -13); //before 2 weeks date
-    	
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple(" select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
-											" from `" + streamBucketName + "` " +											
-											" where streamKeys = \"\\\"speeding\\\"\" " + 
-											" and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
-											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
-											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
+    	String sql = " select count(txid) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
+				"\n from `" + streamBucketName + "` " +											
+				"\n where streamKeys = \"\\\"speeding\\\"\" " + 
+				"\n and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+				"\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+				"\n order by data.json.date DESC ";
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
 		
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
