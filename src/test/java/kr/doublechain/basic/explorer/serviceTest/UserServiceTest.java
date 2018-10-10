@@ -87,7 +87,7 @@ public class UserServiceTest {
 		System.out.println("2 :"+dateFormat.format(cal.getTime()));
 	}
 	
-	@Test
+	//@Test
 	public void getTest() throws Exception {
 		System.out.println("test unit : "+dccController.getTwoWeeksSpeeds());
 	}

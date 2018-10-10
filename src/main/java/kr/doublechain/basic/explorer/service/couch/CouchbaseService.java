@@ -121,9 +121,10 @@ public class CouchbaseService {
      	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();	// current date
  		
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(" SELECT count(*) as speedCnt FROM `" + streamBucketName + 
-											 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
-     										 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
+		String sql = " SELECT count(*) as speedCnt FROM `" + streamBucketName + 
+				 	 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
+					 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" ";
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -211,7 +212,7 @@ public class CouchbaseService {
      }
      
     /**
-     * 2주간 발생된 일별 과속단속 카메라 촬영 건수.
+     * 2주간 발생된 일별 과속단속 카메라 촬영 건수. - old
      * 일별 stream count를 시키기.
      * 
      * @return JsonObject
@@ -234,6 +235,34 @@ public class CouchbaseService {
 					 "\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
 		//LOG.debug(sql);
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
+    /**
+     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
+     * 
+     * @return JsonObject
+     * @throws Exception
+     */
+    public JSONArray selectTodaySpeedCnt() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+		
+    	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+					 "\n from `" + streamBucketName + "` " +											
+					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
+					 "\n AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+//		LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {

@@ -1,8 +1,5 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonIgnore;
-import com.couchbase.client.deps.com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,8 +14,6 @@ public class SpeedDataResponse {
 	/**
 	 * vihiclespeed
 	 */
-	@JsonIgnore
-	@JsonProperty(value = "vihiclespeed")
 	private String vihiclespeed;
 	
 	/**

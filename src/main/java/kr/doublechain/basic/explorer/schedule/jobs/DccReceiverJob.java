@@ -55,6 +55,15 @@ public class DccReceiverJob {
 			updateBlockService.mergeTx(currentHeight);
 			LOG.info("===============Update Block : " + currentHeight+" ===============");
 			
+			LOG.info("============== Websocket start >>>>>>> ===============");
+			
+//			websocketScheduler.broadcastingAccessCnt();
+//			websocketScheduler.broadcastingSpeedCnt();
+			websocketScheduler.broadcastingMessage();
+			websocketScheduler.broadcastingSpeedList();
+			
+			LOG.info("============== Websocket end >>>>>>> ===============");
+			
 		}
     }
 	

@@ -13,6 +13,19 @@ import lombok.Setter;
 @Setter
 public class SpeedListVO {
 	
+	/**
+	 * Latest Speed List
+	 */
 	private List<SpeedDataResponse> speedDataResponse;
+	
+	/**
+	 * Speed Graph Data
+	 */
+	private List<SpeedCntResponse> dataResponse;
+	
+	/**
+	 * SpeedCnt
+	 */
+	private Object speedCnt;
 	
 }

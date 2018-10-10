@@ -19,6 +19,8 @@ import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
 
@@ -41,11 +43,11 @@ public class WebsocketScheduler {
 	@Value("${websocket.broadcast.channel2}")
 	private String WEBSOCKET_BROADCAST_CHANNEL2;
 	
-	@Value("${websocket.broadcast.channel3}")
-	private String WEBSOCKET_BROADCAST_CHANNEL3;
-	
-	@Value("${websocket.broadcast.channel4}")
-	private String WEBSOCKET_BROADCAST_CHANNEL4;
+//	@Value("${websocket.broadcast.channel3}")
+//	private String WEBSOCKET_BROADCAST_CHANNEL3;
+//	
+//	@Value("${websocket.broadcast.channel4}")
+//	private String WEBSOCKET_BROADCAST_CHANNEL4;
 
 	private final SimpMessagingTemplate template;
 	
@@ -61,7 +63,7 @@ public class WebsocketScheduler {
     }
 	
 	/**
-	 * 6초 간격으로 지문인식 트랜잭션 리스트 전파
+	 * 지문인식 트랜잭션 리스트 전파
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
@@ -71,43 +73,41 @@ public class WebsocketScheduler {
 		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
 		FPrintListVO fPrintListVO = new FPrintListVO();
 		fPrintListVO.setDataResponse(list);
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO);
+		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO); //type
 	}
 	
 	/**
-	 * 6초 간격으로 과속 트랜잭션 리스트 전파
+	 * 과속 트랜잭션 리스트, 카운트, graph 데이터 전파
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
 	@Scheduled(cron = "0/1 * * * * ?")
 	public void broadcastingSpeedList() throws Exception {
-		JSONArray jsonArray = couchbaseService.selectStreamBySpeed();
+		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
+		//JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // graph
+		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+		
+		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
+		
 		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
+		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
+		
 		SpeedListVO speedListVO = new SpeedListVO();
 		speedListVO.setSpeedDataResponse(list);
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL3, speedListVO);
+		speedListVO.setDataResponse(graphList);
+		speedListVO.setSpeedCnt(count);
+		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
 	}
 	
 	/**
-	 * 6초 간격으로 지문인식 트랜잭션 id 카운트 전파
+	 * 지문인식 트랜잭션 id 카운트 전파
 	 * @throws JsonProcessingException 
 	 * @throws Exception 
 	 */
-	@Scheduled(cron = "0/1 * * * * ?")
-	public void broadcastingAccessCnt() throws Exception {
-		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
-	}
-	
-	/**
-	 * 6초 간격으로 지문인식 트랜잭션 id 카운트 전파
-	 * @throws JsonProcessingException 
-	 * @throws Exception 
-	 */
-	@Scheduled(cron = "0/1 * * * * ?")
-	public void broadcastingSpeedCnt() throws Exception {
-		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent());		
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL4, CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
-	}
+//	@Scheduled(cron = "0/1 * * * * ?")
+//	public void broadcastingAccessCnt() throws Exception {
+//		//Object message = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent());
+//		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
+//	}
 	
 }
