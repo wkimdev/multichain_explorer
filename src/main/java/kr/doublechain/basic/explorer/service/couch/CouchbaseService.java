@@ -146,9 +146,10 @@ public class CouchbaseService {
      	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();	// current date
 		
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
- 											"` WHERE streamKeys = \"\\\"inout\\\"\" " + 
-     										"  AND data.json.date like \"" + dateFormat.format(date) +" %\" "));
+		String sql = " SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
+					 "` WHERE streamKeys = \"\\\"inout\\\"\" " + 
+					 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" ";
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -168,13 +169,13 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamBySpeed() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
 		Date date = new Date();	// current date
 		
      	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
 				 "` where streamKeys = \"\\\"speeding\\\"\" " +
-				 "\n  AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
-     			 "\n  order by data.json.date desc limit 10 ";
+				 "\n  AND -MILLIS(data.json.date) < 0 " +
+     			 "\n  order by -MILLIS(data.json.date) limit 10 ";
      	
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
@@ -193,12 +194,14 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
 		Date date = new Date();	// current date
 		
-     	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
-						     				"\n  AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
-						 					"\n order by data.json.date desc limit 10 "));
+		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
+					 "\n  AND -MILLIS(data.json.date) < 0 " +
+	    			 "\n  order by -MILLIS(data.json.date) limit 10 ";
+		
+     	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
      	while(result.hasNext()) {
@@ -230,7 +233,7 @@ public class CouchbaseService {
 					 "\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
 					 "\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		LOG.debug(sql);
+		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
