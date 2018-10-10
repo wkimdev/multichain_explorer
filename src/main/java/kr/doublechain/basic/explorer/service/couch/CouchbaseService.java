@@ -224,11 +224,11 @@ public class CouchbaseService {
 		cal.setTime(date);
 		cal.add(Calendar.DATE, -13); //before 2 weeks date
     	String sql = " select count(*) as speedCnt, SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 5, 2) || '/' || SUBSTR(DATE_FORMAT_STR(data.json.date, '1111-11-11'), 8, 2) as date  " + 
-				"\n from `" + streamBucketName + "` " +											
-				"\n where streamKeys = \"\\\"speeding\\\"\" " + 
-				"\n and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
-				"\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
-				"\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
+					 "\n from `" + streamBucketName + "` " +											
+					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
+					 "\n and data.json.date BETWEEN \"" + dateFormat.format(cal.getTime()) + "\" and \"" + dateFormat.format(date) + "\" " +
+					 "\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
+					 "\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
 		LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
