@@ -40,6 +40,7 @@ public class DccReceiverJob {
         
        BigInteger currentHeight = null;
        JsonObject currentBlock = updateBlockService.init();
+       String flag = null;
 		
 		currentHeight = updateBlockService.checkBlock(currentBlock);
 		currentBlock = dccService.getBlock(currentHeight);
@@ -52,18 +53,10 @@ public class DccReceiverJob {
 			currentBlock = dccService.getBlock(currentHeight);
 
 			updateBlockService.mergeBlock(currentBlock);
-			updateBlockService.mergeTx(currentHeight);
+			updateBlockService.mergeTx(currentHeight); //flag check
+			
 			LOG.info("===============Update Block : " + currentHeight+" ===============");
-			
-			LOG.info("============== Websocket start >>>>>>> ===============");
-			
-//			websocketScheduler.broadcastingAccessCnt();
-//			websocketScheduler.broadcastingSpeedCnt();
-			websocketScheduler.broadcastingMessage();
-			websocketScheduler.broadcastingSpeedList();
-			
-			LOG.info("============== Websocket end >>>>>>> ===============");
-			
+			updateBlockService.checkUpdateStreams(flag);
 		}
     }
 	

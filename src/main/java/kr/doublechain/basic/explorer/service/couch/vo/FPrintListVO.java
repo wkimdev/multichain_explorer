@@ -14,4 +14,18 @@ public class FPrintListVO {
 	
 	private List<DataResponse> dataResponse;
 	
+	/**
+	 * Door Access Graph Data
+	 */
+	private List<FingerPrintCntResponse> dataResponseGraph;
+	
+	/**
+	 * DoorAccessCnt
+	 */
+	private Object DoorAccessCnt;
+	
+	/**
+	 * call check
+	 */
+	String message;
 }

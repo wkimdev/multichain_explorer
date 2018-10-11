@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
+import kr.doublechain.basic.explorer.schedule.jobs.WebsocketScheduler;
 import kr.doublechain.basic.explorer.service.couch.CouchbaseService;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 
@@ -35,6 +36,9 @@ public class UpdateBlockService {
 
 	@Autowired
 	private DccService dccService;
+	
+	@Autowired
+	private WebsocketScheduler websocketScheduler;
 
 	/**
 	 * DB에 저장된 가장 최신의 유효한 블록 번호를 리턴한다.
@@ -145,6 +149,7 @@ public class UpdateBlockService {
 	}
 	
 	public void mergeStream(JsonObject transaction) throws Exception {
+		String flag = null;
 		
 		if (transaction.has("vout")) {
 			
@@ -170,6 +175,9 @@ public class UpdateBlockService {
 							for(int k = 0; k < keyArray.size(); k++) {
 								keys += keyArray.get(k);
 							}
+							
+							System.out.println(item.get("name").toString());
+							System.out.println(item.get("keys").toString());
 							
 							item.add("height", transaction.get("height"));
 							item.add("txid", transaction.get("txid"));
@@ -211,11 +219,31 @@ public class UpdateBlockService {
 							}
 							
 							couchbaseService.upsertBucketStream(item);
+							if( (item.get("name")).getAsString().equals("speed") && (item.get("streamKeys")).getAsString().equals("\"speeding\"") ) {
+								checkUpdateStreams("1");
+							} else if ( (item.get("name")).getAsString().equals("finger") && (item.get("streamKeys")).getAsString().equals("\"inout\"") ) {
+								checkUpdateStreams("0");
+							}
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 업데이트된 스피딩 블록의 플래그값.
+	 * 
+	 * @return int 
+	 */
+	public void checkUpdateStreams(String flag) throws Exception {
+		String flag_name = null;
+		if(flag == "1") {
+			flag_name = "speed_flag";
+		} else if(flag == "0") {
+			flag_name = "door_flag";
+		}
+		websocketScheduler.checkChange(flag_name);
 	}
 	
 	/**

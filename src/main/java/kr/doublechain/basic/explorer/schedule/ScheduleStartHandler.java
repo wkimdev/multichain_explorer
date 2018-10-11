@@ -14,18 +14,17 @@ public class ScheduleStartHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScheduleStartHandler.class);
 	
-	@Autowired
-	WebsocketScheduler websocketScheduler;
+	//@Autowired
+	//WebsocketScheduler websocketScheduler;
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void init() throws Exception {
 		LOG.info("application ready event start");
+		String flag = "flag";
 		
 		try {
-//			websocketScheduler.broadcastingAccessCnt();
-//			websocketScheduler.broadcastingSpeedCnt();
-			websocketScheduler.broadcastingMessage();
-			websocketScheduler.broadcastingSpeedList();
+			//websocketScheduler.broadcastingDoorAccess(flag);
+			//websocketScheduler.broadcastingSpeedList(flag);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -28,4 +28,9 @@ public class SpeedListVO {
 	 */
 	private Object speedCnt;
 	
+	/**
+	 * data change check message
+	 */
+	private String message;
+	
 }

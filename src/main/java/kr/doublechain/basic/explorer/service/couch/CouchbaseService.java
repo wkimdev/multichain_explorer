@@ -2,6 +2,7 @@ package kr.doublechain.basic.explorer.service.couch;
 
 import static com.couchbase.client.java.query.Select.select;
 
+
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -272,7 +273,35 @@ public class CouchbaseService {
     }
     
     /**
-     * 2주간 발생된 일별 출입인증 시도 건수. 
+     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
+     * 
+     * @return JsonObject
+     * @throws Exception
+     */
+    public JSONArray selectTodayDoorAccessCnt() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();	// current date
+		
+    	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+					 "\n from `" + streamBucketName + "` " +											
+					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
+					 "\n AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+//		LOG.debug(sql);
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
+    /**
+     * 2주간 발생된 일별 출입인증 시도 건수. - old
      * 
      * @return JsonObject
      * @throws Exception

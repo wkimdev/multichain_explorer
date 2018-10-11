@@ -282,8 +282,9 @@ public class DccController {
 		 
 		Header header = new Header();
 		Meta meta = new Meta();
-			
-		JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt();
+		
+		JSONArray jsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+		//JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt();
 		List<SpeedCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
 		SpeedCntVO speedCntVO = new SpeedCntVO();
 		speedCntVO.setDataResponse(list);
@@ -308,7 +309,8 @@ public class DccController {
 		Header header = new Header();
 		Meta meta = new Meta();
 			
-		JSONArray jsonArray = couchbaseService.selectTwoWeeksFingerPrints();
+		//JSONArray jsonArray = couchbaseService.selectTwoWeeksFingerPrints();
+		JSONArray jsonArray = couchbaseService.selectTodayDoorAccessCnt();
 		List<FingerPrintCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});		
 		FingerPrintCntVO fingerPrintCntVO = new FingerPrintCntVO();
 		fingerPrintCntVO.setDataResponse(list);
