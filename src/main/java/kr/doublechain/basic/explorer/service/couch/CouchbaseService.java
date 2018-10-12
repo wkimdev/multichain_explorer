@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
@@ -119,12 +120,19 @@ public class CouchbaseService {
       */
      public JsonObject selectSpeedCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date();	// current date
+     	
+     	// kor time
+     	//DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+     	//Date date = new Date();	// current date
+		
+     	// bc time
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+        Date date = new Date();
  		
 		String sql = " SELECT count(*) as speedCnt FROM `" + streamBucketName + 
 				 	 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
-					 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" ";
+					 "  AND data.json.date like \"" + df.format(date) +" %\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
@@ -144,13 +152,20 @@ public class CouchbaseService {
       * @throws Exception
       */
      public JsonObject selectFingerPrintCntByCurrent() throws Exception {
-     	Bucket bucket = connectBucket(streamBucketName);     	
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date();	// current date
+     	Bucket bucket = connectBucket(streamBucketName);
+     	
+     	// kor time
+     	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+     	// Date date = new Date();	// current date
+		
+		// bc time
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+        Date date = new Date();
 		
 		String sql = " SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
 					 "` WHERE streamKeys = \"\\\"inout\\\"\" " + 
-					 "  AND data.json.date like \"" + dateFormat.format(date) +" %\" ";
+					 "  AND data.json.date like \"" + df.format(date) +" %\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
@@ -252,14 +267,21 @@ public class CouchbaseService {
      */
     public JSONArray selectTodaySpeedCnt() throws Exception {
     	JsonObject jsonObject = null;
-    	Bucket bucket = connectBucket(streamBucketName);    	
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date();	// current date
+    	Bucket bucket = connectBucket(streamBucketName);
+    	
+    	//kor time
+    	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	// Date date = new Date();	// current date
+		
+		// bc time
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	    df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+	    Date date = new Date();
 		
     	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
 					 "\n from `" + streamBucketName + "` " +											
 					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
-					 "\n AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+					 "\n AND data.json.date like \"" + df.format(date) +" %\" " +
 					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
@@ -280,14 +302,21 @@ public class CouchbaseService {
      */
     public JSONArray selectTodayDoorAccessCnt() throws Exception {
     	JsonObject jsonObject = null;
-    	Bucket bucket = connectBucket(streamBucketName);    	
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date();	// current date
+    	Bucket bucket = connectBucket(streamBucketName);
+    	
+    	// kor time
+    	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	// Date date = new Date();	// current date
+		
+		// bc time
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	    df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+	    Date date = new Date();
 		
     	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
 					 "\n from `" + streamBucketName + "` " +											
 					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
-					 "\n AND data.json.date like \"" + dateFormat.format(date) +" %\" " +
+					 "\n AND data.json.date like \"" + df.format(date) +" %\" " +
 					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));

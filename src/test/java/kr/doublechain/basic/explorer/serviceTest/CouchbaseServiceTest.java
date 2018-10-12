@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,9 +164,24 @@ public class CouchbaseServiceTest {
 
 	} 
 	
-	@Test
+	//@Test
 	public void selectStreamBySpeed() throws Exception {
 		System.out.println(couchbaseService.selectStreamBySpeed());
-	} 
+	}
+	
+	@Test
+	public void bcTimeTest() throws Exception{
+//		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("es", "ES"));
+//		String bctime = date.format(new Date());
+//		System.out.println("bctime :"+bctime);
+		
+		//SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+		//System.out.println("simpledateformat : " + date.toString());
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+        Date date = new Date();
+        //dateFormat.format(date)
+        System.out.println(df.format(date));
+	}
 	
 }
