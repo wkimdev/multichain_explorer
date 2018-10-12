@@ -68,7 +68,7 @@ public class WebsocketScheduler {
     	if(flag == "speed_flag") {
     		
     		message = "speed_change";
-    		LOG.debug(" >>>>>>>>>>> Start speed Stream websocket >>>>>>>>>>> ");
+    		LOG.debug(" >>>>>>>>>>> Start speed Stream websocket flag >>>>>>>>>>> ");
     		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
     		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
     		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
@@ -86,7 +86,7 @@ public class WebsocketScheduler {
     	} else if(flag == "door_flag") {
     		
     		message = "door_change";
-    		LOG.debug(" >>>>>>>>>>> Start Door Access Stream websocket >>>>>>>>>>> ");
+    		LOG.debug(" >>>>>>>>>>> Start Door Access Stream websocket flag >>>>>>>>>>> ");
     		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint(); // list
     		JSONArray graphJsonArray = couchbaseService.selectTodayDoorAccessCnt(); // graph
     		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()); //count

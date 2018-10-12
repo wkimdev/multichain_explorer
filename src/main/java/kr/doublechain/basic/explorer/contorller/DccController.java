@@ -283,8 +283,8 @@ public class DccController {
 		Header header = new Header();
 		Meta meta = new Meta();
 		
-		JSONArray jsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
-		//JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt();
+		JSONArray jsonArray = couchbaseService.selectTodaySpeedCnt(); // graph - 시간별
+		//JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // graph - 2주내 날짜별
 		List<SpeedCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
 		SpeedCntVO speedCntVO = new SpeedCntVO();
 		speedCntVO.setDataResponse(list);
