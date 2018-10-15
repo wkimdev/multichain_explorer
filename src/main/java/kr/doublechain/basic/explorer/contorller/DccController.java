@@ -278,13 +278,13 @@ public class DccController {
 	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 과속단속 카메라 촬영 건수 그래프 데이터.")
      @RequestMapping("/speeds/graph")
      @ResponseBody
-     public DccResponse<SpeedCntVO> getTwoWeeksSpeeds() throws Exception{ 		 
+     public DccResponse<SpeedCntVO> getTwoWeeksSpeeds() throws Exception {
 		 
 		Header header = new Header();
 		Meta meta = new Meta();
 		
-		JSONArray jsonArray = couchbaseService.selectTodaySpeedCnt(); // graph - 시간별
-		//JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // graph - 2주내 날짜별
+		//JSONArray jsonArray = couchbaseService.selectTodaySpeedCnt(); // graph - 시간별 (origin)
+		JSONArray jsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // graph - 2주내 날짜별
 		List<SpeedCntResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
 		SpeedCntVO speedCntVO = new SpeedCntVO();
 		speedCntVO.setDataResponse(list);
@@ -304,7 +304,7 @@ public class DccController {
 	 @ApiOperation(value = "2주간 발생된 스트림 데이터", notes = "최근 2주(14일)간 발생된 일별 출입인증 시도 건수 그래프 데이터.")
      @RequestMapping("/fingerPrints/graph")
      @ResponseBody
-     public DccResponse<FingerPrintCntVO> getTwoWeeksFingerPrints() throws Exception{ 		 
+     public DccResponse<FingerPrintCntVO> getTwoWeeksFingerPrints() throws Exception {
 		 
 		Header header = new Header();
 		Meta meta = new Meta();

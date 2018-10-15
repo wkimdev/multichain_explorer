@@ -169,8 +169,8 @@ public class CouchbaseServiceTest {
 		System.out.println(couchbaseService.selectStreamBySpeed());
 	}
 	
-	@Test
-	public void bcTimeTest() throws Exception{
+	//@Test
+	public void bcTimeTest() throws Exception {
 //		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("es", "ES"));
 //		String bctime = date.format(new Date());
 //		System.out.println("bctime :"+bctime);
@@ -183,5 +183,11 @@ public class CouchbaseServiceTest {
         //dateFormat.format(date)
         System.out.println(df.format(date));
 	}
+	
+	@Test
+	public void selectTodaySpeedCnt() throws Exception {
+		System.out.println(couchbaseService.selectTwoWeeksSpeedCnt());
+	}
+	
 	
 }

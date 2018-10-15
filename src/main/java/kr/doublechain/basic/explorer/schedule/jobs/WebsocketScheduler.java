@@ -23,6 +23,7 @@ import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintCntResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
+import kr.doublechain.basic.explorer.service.user.UserService;
 
 /**
  * 
@@ -50,6 +51,12 @@ public class WebsocketScheduler {
      */
 	@Autowired
 	CouchbaseService couchbaseService;
+	
+	/**
+     * UserService Service
+     */
+	@Autowired
+	UserService userService;
 
     @Autowired
     public WebsocketScheduler(SimpMessagingTemplate template) {
@@ -137,8 +144,11 @@ public class WebsocketScheduler {
 		String message = null;
 		
 		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
-		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+		//JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+		JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // test - old one
+		Object twoWeeksDate = CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate()); // test - old one
 		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
+		 
 		
 		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
 		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
@@ -148,6 +158,7 @@ public class WebsocketScheduler {
 		speedListVO.setDataResponse(graphList);
 		speedListVO.setSpeedCnt(count);
 		speedListVO.setMessage(message);
+		speedListVO.setTwoWeeksDate(twoWeeksDate);
 		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
 	}
 	

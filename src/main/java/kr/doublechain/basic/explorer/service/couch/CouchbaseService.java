@@ -285,7 +285,7 @@ public class CouchbaseService {
 					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-//		LOG.debug(sql);
+		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {

@@ -29,6 +29,11 @@ public class SpeedListVO {
 	private Object speedCnt;
 	
 	/**
+	 * two week date - for test (this is old one)_20181015
+	 */
+	private Object twoWeeksDate;
+	
+	/**
 	 * data change check message
 	 */
 	private String message;
