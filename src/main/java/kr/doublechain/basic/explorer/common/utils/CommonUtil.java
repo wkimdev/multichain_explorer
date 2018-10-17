@@ -270,7 +270,7 @@ public class CommonUtil {
 	 * @param param
 	 * @return Object
 	 * @throws Exception
-	 * @desc bitcoin 기반
+	 * @desc bitcoin 기반 // 테스트 이후 에러로그 사라지면 지우기.
 	 */
 	public static Object RemoteCall(String user, String password, String host, String port, String rpcCommand,
 			List<Object> param) throws Exception {

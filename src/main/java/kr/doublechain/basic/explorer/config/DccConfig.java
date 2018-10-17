@@ -6,6 +6,8 @@ import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
+
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -46,7 +48,7 @@ public class DccConfig {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
         provider.setCredentials(AuthScope.ANY, credentials);
         httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-        httpPost = new HttpPost(kr.doublechain.basic.explorer.common.utils.CommonUtil.makeUrl(host, port));
+        httpPost = new HttpPost(CommonUtil.makeUrl(host, port));
     }
     
     /**
