@@ -64,102 +64,102 @@ public class WebsocketScheduler {
     }
 	
     /**
-	 * for data change check
-	 * @throws Exception
-	 * @return String 
-	 */
-    //@Scheduled(cron = "0/1 * * * * ?")
-    public void checkChange(String flag) throws Exception {
-    	String message = "";
+   	 * for data change check
+   	 * @throws Exception
+   	 * @return String 
+   	 */
+       //@Scheduled(cron = "0/1 * * * * ?")
+       public void checkChange(String flag) throws Exception {
+       	String message = "";
+       	
+       	if(flag == "speed_flag") {
+       		
+       		message = "speed_change";
+       		LOG.debug(" >>>>>>>>>>> Start speed Stream websocket flag >>>>>>>>>>> ");
+       		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
+       		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+       		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
+       		
+       		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
+       		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
+       		
+       		SpeedListVO speedListVO = new SpeedListVO();
+       		speedListVO.setSpeedDataResponse(list);
+       		speedListVO.setDataResponse(graphList);
+       		speedListVO.setSpeedCnt(count);
+       		speedListVO.setMessage(message);
+       		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
+       		
+       	} else if(flag == "door_flag") {
+       		
+       		message = "door_change";
+       		LOG.debug(" >>>>>>>>>>> Start Door Access Stream websocket flag >>>>>>>>>>> ");
+       		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint(); // list
+       		JSONArray graphJsonArray = couchbaseService.selectTodayDoorAccessCnt(); // graph
+       		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()); //count
+       		
+       		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
+       		List<FingerPrintCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});
+       		
+       		FPrintListVO fPrintListVO = new FPrintListVO();
+       		fPrintListVO.setDataResponse(list);
+       		fPrintListVO.setDataResponseGraph(graphList);
+       		fPrintListVO.setDoorAccessCnt(count);
+       		fPrintListVO.setMessage(message);
+       		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO);
+       	}
+       }
+       
+   	/**
+   	 * 지문인식 트랜잭션 리스트, 카운트, graph 데이터 전파
+   	 * @throws JsonProcessingException 
+   	 * @throws Exception 
+   	 */
+   	@Scheduled(cron = "0/1 * * * * ?")
+   	public void broadcastingDoorAccess() throws Exception {
+   		String message = null;
+   		
+   		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint(); // list
+   		JSONArray graphJsonArray = couchbaseService.selectTodayDoorAccessCnt(); // graph
+   		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()); //count
+   		
+   		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
+   		List<FingerPrintCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});
+   		
+   		FPrintListVO fPrintListVO = new FPrintListVO();
+   		fPrintListVO.setDataResponse(list);
+   		fPrintListVO.setDataResponseGraph(graphList);
+   		fPrintListVO.setDoorAccessCnt(count);
+   		fPrintListVO.setMessage(message);
+   		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO);
+   	}
+   	
+   	/**
+   	 * 과속 트랜잭션 리스트, 카운트, graph 데이터 전파
+   	 * @throws JsonProcessingException 
+   	 * @throws Exception 
+   	 */
+   	@Scheduled(cron = "0/1 * * * * ?")
+   	public void broadcastingSpeedList() throws Exception {
+   		String message = null;
+   		
+   		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
+   		//JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+   		JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // test - old one
+   		Object twoWeeksDate = CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate()); // test - old one
+   		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
+   		 
+   		
+   		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
+   		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
+   		
+   		SpeedListVO speedListVO = new SpeedListVO();
+   		speedListVO.setSpeedDataResponse(list);
+   		speedListVO.setDataResponse(graphList);
+   		speedListVO.setSpeedCnt(count);
+   		speedListVO.setMessage(message);
+   		speedListVO.setTwoWeeksDate(twoWeeksDate);
+   		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
+   	}
     	
-    	if(flag == "speed_flag") {
-    		
-    		message = "speed_change";
-    		LOG.debug(" >>>>>>>>>>> Start speed Stream websocket flag >>>>>>>>>>> ");
-    		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
-    		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
-    		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
-    		
-    		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
-    		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
-    		
-    		SpeedListVO speedListVO = new SpeedListVO();
-    		speedListVO.setSpeedDataResponse(list);
-    		speedListVO.setDataResponse(graphList);
-    		speedListVO.setSpeedCnt(count);
-    		speedListVO.setMessage(message);
-    		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
-    		
-    	} else if(flag == "door_flag") {
-    		
-    		message = "door_change";
-    		LOG.debug(" >>>>>>>>>>> Start Door Access Stream websocket flag >>>>>>>>>>> ");
-    		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint(); // list
-    		JSONArray graphJsonArray = couchbaseService.selectTodayDoorAccessCnt(); // graph
-    		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()); //count
-    		
-    		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
-    		List<FingerPrintCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});
-    		
-    		FPrintListVO fPrintListVO = new FPrintListVO();
-    		fPrintListVO.setDataResponse(list);
-    		fPrintListVO.setDataResponseGraph(graphList);
-    		fPrintListVO.setDoorAccessCnt(count);
-    		fPrintListVO.setMessage(message);
-    		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO);
-    	}
-    }
-    
-	/**
-	 * 지문인식 트랜잭션 리스트, 카운트, graph 데이터 전파
-	 * @throws JsonProcessingException 
-	 * @throws Exception 
-	 */
-	@Scheduled(cron = "0/1 * * * * ?")
-	public void broadcastingDoorAccess() throws Exception {
-		String message = null;
-		
-		JSONArray jsonArray = couchbaseService.selectStreamByFingerPrint(); // list
-		JSONArray graphJsonArray = couchbaseService.selectTodayDoorAccessCnt(); // graph
-		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()); //count
-		
-		List<DataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<DataResponse>>() {});
-		List<FingerPrintCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<FingerPrintCntResponse>>() {});
-		
-		FPrintListVO fPrintListVO = new FPrintListVO();
-		fPrintListVO.setDataResponse(list);
-		fPrintListVO.setDataResponseGraph(graphList);
-		fPrintListVO.setDoorAccessCnt(count);
-		fPrintListVO.setMessage(message);
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL, fPrintListVO);
-	}
-	
-	/**
-	 * 과속 트랜잭션 리스트, 카운트, graph 데이터 전파
-	 * @throws JsonProcessingException 
-	 * @throws Exception 
-	 */
-	@Scheduled(cron = "0/1 * * * * ?")
-	public void broadcastingSpeedList() throws Exception {
-		String message = null;
-		
-		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
-		//JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
-		JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // test - old one
-		Object twoWeeksDate = CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate()); // test - old one
-		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
-		 
-		
-		List<SpeedDataResponse> list = CommonUtil.convertObjectFromJsonStringByTypeRef(jsonArray.toString(), new TypeReference<List<SpeedDataResponse>>() {});
-		List<SpeedCntResponse> graphList = CommonUtil.convertObjectFromJsonStringByTypeRef(graphJsonArray.toString(), new TypeReference<List<SpeedCntResponse>>() {});		
-		
-		SpeedListVO speedListVO = new SpeedListVO();
-		speedListVO.setSpeedDataResponse(list);
-		speedListVO.setDataResponse(graphList);
-		speedListVO.setSpeedCnt(count);
-		speedListVO.setMessage(message);
-		speedListVO.setTwoWeeksDate(twoWeeksDate);
-		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
-	}
-	
 }
