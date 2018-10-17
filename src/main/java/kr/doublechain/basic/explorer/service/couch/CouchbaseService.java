@@ -52,7 +52,6 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.streams.name}")
     private String streamBucketName;
     
-    //
 	public Bucket connectBucket(String bucketName) {
 		return couchbaseCluster.openBucket(bucketName);
 	}

@@ -22,7 +22,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	
 	@Value("${websocket.channel}")
-	private String WEBSOCKET_ENDPOINT; ///ws
+	private String WEBSOCKET_ENDPOINT;
 	
 	@Value("${websocket.subscribe.channel}")
 	private String BROADCAST_CHANNEL;
@@ -36,16 +36,4 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker(BROADCAST_CHANNEL);
     }
-	  
-//	  @Override
-//	  public void configureMessageBroker(MessageBrokerRegistry registry) {
-//		  registry.enableSimpleBroker("/topic");
-//		  registry.setApplicationDestinationPrefixes("/app");
-//	  }
-//	
-//	  @Override
-//	  public void registerStompEndpoints(StompEndpointRegistry registry) {
-//	      registry.addEndpoint("/socketHandler").withSockJS();
-//	  }
- 
 }
