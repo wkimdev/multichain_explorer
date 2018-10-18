@@ -1,13 +1,5 @@
 package kr.doublechain.basic.explorer.config;
 
-import com.couchbase.client.java.Cluster;
-
-import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.env.CouchbaseEnvironment;
-import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
-
-import kr.doublechain.basic.explorer.common.utils.CommonUtil;
-
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -18,6 +10,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import kr.doublechain.basic.explorer.common.utils.CommonUtil;
 
 @Configuration
 public class DccConfig {
@@ -43,7 +37,7 @@ public class DccConfig {
                      @Value("${dcc.user}") final String user,
                      @Value("${dcc.password}") final String password
                       ) {
-        
+    	
         CredentialsProvider provider = new BasicCredentialsProvider();
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
         provider.setCredentials(AuthScope.ANY, credentials);

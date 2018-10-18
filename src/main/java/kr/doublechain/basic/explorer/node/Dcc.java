@@ -10,13 +10,11 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.common.utils.CommonUtil;
-import kr.doublechain.basic.explorer.service.dcc.DccService;
 
 /**
  * 
