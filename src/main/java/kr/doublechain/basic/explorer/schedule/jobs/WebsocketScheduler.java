@@ -144,9 +144,9 @@ public class WebsocketScheduler {
    		String message = null;
    		
    		JSONArray jsonArray = couchbaseService.selectStreamBySpeed(); // list
-   		//JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
-   		JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // test - old one
-   		Object twoWeeksDate = CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate()); // test - old one
+   		JSONArray graphJsonArray = couchbaseService.selectTodaySpeedCnt(); // graph
+   		//JSONArray graphJsonArray = couchbaseService.selectTwoWeeksSpeedCnt(); // test - old
+   		//Object twoWeeksDate = CommonUtil.convertObjectFromJSONArray(userService.getTwoWeeksDate()); // test - old
    		Object count = CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()); // count
    		 
    		
@@ -158,7 +158,7 @@ public class WebsocketScheduler {
    		speedListVO.setDataResponse(graphList);
    		speedListVO.setSpeedCnt(count);
    		speedListVO.setMessage(message);
-   		speedListVO.setTwoWeeksDate(twoWeeksDate);
+   		//speedListVO.setTwoWeeksDate(twoWeeksDate); // test - old
    		template.convertAndSend(WEBSOCKET_BROADCAST_CHANNEL2, speedListVO);
    	}
     	
