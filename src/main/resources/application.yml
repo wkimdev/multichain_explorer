@@ -19,8 +19,8 @@ spring:
     servlet:
       load-on-startup: "-1"
   jackson:
-    time-zone: Europe/Madrid
-    #time-zone: Asia/Seoul         
+#    time-zone: Europe/Madrid
+    time-zone: Asia/Seoul         
     default-property-inclusion: NON_NULL
   session:
     store-type: none
@@ -29,7 +29,7 @@ spring:
 # was port override set vm option : -Dserver.port=8080    
 server:
   port: 8081  
-  address: 192.168.0.142
+  address: 192.168.15.10
   servlet-path: /
   compression:
     enabled: "true"
@@ -85,9 +85,9 @@ couchbase:
       name: Streams
     name: Explorer
     expiry: 0
-    user: jsg0212
-    password: dc393939
-    ip: 192.168.0.145
+    user: Administrator
+    password: dc!393939
+    ip: 127.0.0.1
 
 #websocket channel
 websocket:

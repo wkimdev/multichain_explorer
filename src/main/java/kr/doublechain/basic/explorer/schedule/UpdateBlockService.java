@@ -35,6 +35,9 @@ public class UpdateBlockService {
 
    @Value("${dcc.genesisblockhash}")
    public String genesisBlockHash;
+   
+   @Value("${spring.jackson.time-zone}")
+   String timeZone;
 
    @Autowired
    private CouchbaseService couchbaseService;
@@ -205,19 +208,16 @@ public class UpdateBlockService {
                               Object json = (JsonObject)(dccService.getTxdata(item.get("txid").getAsString(), txList.get(i).getAsJsonObject().get("n").getAsInt()));
                               
                               String korTime = ((JsonObject) json).get("json").getAsJsonObject().get("date").getAsString();
-                              System.out.println("json.date : " +korTime);
                               Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA).parse(korTime);
-                              System.out.println("simpledateformat : " + date.toString());
                               
                               
-                              DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                              df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+                              DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+                              df.setTimeZone(TimeZone.getTimeZone(timeZone));
                               
-//                            System.out.println(df.format(date));
                               JsonObject streamJson = ((JsonObject)json).get("json").getAsJsonObject();
                               streamJson.remove("date");
-                              streamJson.addProperty("date", df.format(date).toString());
-                              System.out.println(df.format(date).toString());
+                              streamJson.addProperty("date", Long.parseLong(df.format(date).toString()));
+                              streamJson.addProperty("dateTime", System.currentTimeMillis());
                               JsonObject fixedJson = new JsonObject();
                               fixedJson.add("json", streamJson);
                               
