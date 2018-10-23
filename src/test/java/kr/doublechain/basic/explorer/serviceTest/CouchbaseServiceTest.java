@@ -2,6 +2,7 @@ package kr.doublechain.basic.explorer.serviceTest;
 
 import java.math.BigInteger;
 
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,8 +15,12 @@ import java.util.TimeZone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.couchbase.client.java.Bucket;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +42,20 @@ public class CouchbaseServiceTest {
 	@Autowired
 	DccService dccService;
 	
+	@Value("${spring.mvc.locale}")
+	Locale locale = null;
+	
+	@Value("${spring.jackson.time-zone}")
+	TimeZone timeZone;
+	
+//	@Bean
+//    public LocaleResolver localeResolver() {
+//      SessionLocaleResolver slr = new SessionLocaleResolver();
+//      slr.setDefaultLocale(locale);
+//      return slr;
+//    }
+
+	
 	//@Test
 	public void upsertBucketBlockTest() throws Exception {
 		for (int i = 0; i < 10000; i++) {
@@ -50,11 +69,6 @@ public class CouchbaseServiceTest {
 		//couchbaseService.upsertBucketTransaction(dccService.getTx("29d97b40654161dc4d5c598bda14cb68134490858f3d00ec4c4a015cb755f08d"));
 		couchbaseService.upsertBucketTransaction(dccService.getTx("00007d3ee17c6b64de0dfefe903ab325905ee2b062a442f0d6cbd187f80256c2"));		
 	}	
-	
-	//@Test
-	public void selectBlockByheightTest() throws Exception {
-		System.out.println(CommonUtil.convertObjectFromJSONArray(couchbaseService.selectBlockByheight()));
-	}
 	
 	//@Test 
 	public void selectBlockTest() throws Exception {
@@ -186,8 +200,21 @@ public class CouchbaseServiceTest {
 	
 	@Test
 	public void selectTodaySpeedCnt() throws Exception {
-		System.out.println(couchbaseService.selectTwoWeeksSpeedCnt());
+		//System.out.println(couchbaseService.selectTwoWeeksSpeedCnt()); // old
+		//System.out.println(couchbaseService.selectTodaySpeedCnt()); //speed
+		System.out.println(couchbaseService.selectTodayDoorAccessCnt());
 	}
 	
-	
+	//@Test
+	public void selectLocaleValue() throws Exception {
+		//System.out.println(locale.toString());
+		System.out.println(timeZone.getID()); //Europe/Madrid --> Db에서 처리
+		String ID = timeZone.getID();
+		Date date = new Date();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		df.setTimeZone(TimeZone.getTimeZone(ID));
+		System.out.println("Date and time in Madrid: " + df.format(date));
+		
+	}
 }

@@ -1,13 +1,23 @@
 package kr.doublechain.basic.explorer.serviceTest;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import org.json.simple.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import com.google.gson.JsonObject;
 
 import kr.doublechain.basic.explorer.schedule.UpdateBlockService;
@@ -63,6 +73,5 @@ public class UpdateBlockServiceTest {
 	public void validBlockchainTest() throws Exception {
 		System.out.println(updateBlockService.validBlockchain());
 	}
-	
 	
 }

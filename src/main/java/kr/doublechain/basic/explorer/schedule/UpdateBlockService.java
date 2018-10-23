@@ -213,7 +213,7 @@ public class UpdateBlockService {
                               DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                               df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
                               
-//                              System.out.println(df.format(date));
+//                            System.out.println(df.format(date));
                               JsonObject streamJson = ((JsonObject)json).get("json").getAsJsonObject();
                               streamJson.remove("date");
                               streamJson.addProperty("date", df.format(date).toString());

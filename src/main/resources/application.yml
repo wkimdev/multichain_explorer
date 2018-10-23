@@ -1,4 +1,3 @@
-
 #spring profiles : LOCAL
 #spring  setup and common configuration
 spring:
@@ -13,12 +12,15 @@ spring:
   jmx:
     default-domain: datasource_home
   mvc:
-    locale: en
+    #locale: ko_KR
+    locale: es_ES
     favicon:
       enabled: "false"
     servlet:
       load-on-startup: "-1"
   jackson:
+    time-zone: Europe/Madrid
+    #time-zone: Asia/Seoul         
     default-property-inclusion: NON_NULL
   session:
     store-type: none

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
@@ -16,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -52,9 +56,41 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.streams.name}")
     private String streamBucketName;
     
+    @Value("${spring.mvc.locale}")
+	Locale locale = null;
+	
+	@Value("${spring.jackson.time-zone}")
+	TimeZone timeZone;
+    
 	public Bucket connectBucket(String bucketName) {
 		return couchbaseCluster.openBucket(bucketName);
 	}
+	
+	/**
+	 * 로컬 timezone 값 호출
+	 * 
+	 * @return String
+	 */
+	public String getLocalTimeSet() {
+		String ID = timeZone.getID();
+		Date date = new Date();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		df.setTimeZone(TimeZone.getTimeZone(ID));
+		return df.format(date);
+	}
+	
+	/**
+	 * 로컬 locale 값 호출 for test
+	 * test 이후 지우기.
+	 * 
+	 * @return String
+	 */
+	public String getLocale() {
+		//System.out.println("this is locale : "+locale.toString());
+		return locale.toString();
+	}
+	
+	
 	
 	/**
 	 * 최신 블록값 호출
@@ -119,20 +155,12 @@ public class CouchbaseService {
       */
      public JsonObject selectSpeedCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	
-     	// kor time
-     	//DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-     	//Date date = new Date();	// current date
-		
-     	// bc time
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        Date date = new Date();
  		
 		String sql = " SELECT count(*) as speedCnt FROM `" + streamBucketName + 
 				 	 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
-					 "  AND data.json.date like \"" + df.format(date) +" %\" ";
+					 "  AND data.json.date like \"" + getLocalTimeSet() +" %\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+     	//LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -153,19 +181,11 @@ public class CouchbaseService {
      public JsonObject selectFingerPrintCntByCurrent() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
      	
-     	// kor time
-     	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-     	// Date date = new Date();	// current date
-		
-		// bc time
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-        Date date = new Date();
-		
 		String sql = " SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
 					 "` WHERE streamKeys = \"\\\"inout\\\"\" " + 
-					 "  AND data.json.date like \"" + df.format(date) +" %\" ";
+					 "  AND data.json.date like \"" + getLocalTimeSet() +" %\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+     	//LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -185,9 +205,7 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamBySpeed() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
-		Date date = new Date();	// current date
-		
+     	
      	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
 				 "` where streamKeys = \"\\\"speeding\\\"\" " +
 				 "\n  AND -MILLIS(data.json.date) < 0 " +
@@ -210,9 +228,7 @@ public class CouchbaseService {
  	 */
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
-     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
-		Date date = new Date();	// current date
-		
+     	
 		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
 					 "\n  AND -MILLIS(data.json.date) < 0 " +
 	    			 "\n  order by -MILLIS(data.json.date) limit 10 ";
@@ -226,6 +242,59 @@ public class CouchbaseService {
      	return jsonList;
      }
      
+    /**
+     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
+     * 
+     * @return JsonObject
+     * @throws Exception
+     */
+    public JSONArray selectTodaySpeedCnt() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);
+	    
+    	// SELECT DATE_PART_MILLIS(1463284740000, 'hour', '+getLocale()+') as year;
+    	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+					 "\n from `" + streamBucketName + "` " +											
+					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
+					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
+					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+		//LOG.debug(sql);
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
+    /**
+     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
+     * 
+     * @return JsonObject
+     * @throws Exception
+     */
+    public JSONArray selectTodayDoorAccessCnt() throws Exception {
+    	JsonObject jsonObject = null;
+    	Bucket bucket = connectBucket(streamBucketName);
+    	
+    	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+					 "\n from `" + streamBucketName + "` " +											
+					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
+					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
+					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
+		//LOG.debug(sql);
+    	Iterator<N1qlQueryRow> result = query.iterator();
+    	JSONArray jsonList = new JSONArray();
+    	while(result.hasNext()) {
+    		jsonList.add(result.next());
+    	}
+    	return jsonList;
+    }
+    
     /**
      * 2주간 발생된 일별 과속단속 카메라 촬영 건수. - old
      * 일별 stream count를 시키기.
@@ -259,76 +328,6 @@ public class CouchbaseService {
     }
     
     /**
-     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
-     * 
-     * @return JsonObject
-     * @throws Exception
-     */
-    public JSONArray selectTodaySpeedCnt() throws Exception {
-    	JsonObject jsonObject = null;
-    	Bucket bucket = connectBucket(streamBucketName);
-    	
-    	//kor time
-    	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	// Date date = new Date();	// current date
-		
-		// bc time
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-	    df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-	    Date date = new Date();
-		
-    	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
-					 "\n from `" + streamBucketName + "` " +											
-					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
-					 "\n AND data.json.date like \"" + df.format(date) +" %\" " +
-					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
-					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		//LOG.debug(sql);
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JSONArray jsonList = new JSONArray();
-    	while(result.hasNext()) {
-    		jsonList.add(result.next());
-    	}
-    	return jsonList;
-    }
-    
-    /**
-     * 현재 날짜 시간 발생된 일별 과속단속 카메라 촬영 건수. - 2018/10/10
-     * 
-     * @return JsonObject
-     * @throws Exception
-     */
-    public JSONArray selectTodayDoorAccessCnt() throws Exception {
-    	JsonObject jsonObject = null;
-    	Bucket bucket = connectBucket(streamBucketName);
-    	
-    	// kor time
-    	// DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	// Date date = new Date();	// current date
-		
-		// bc time
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-	    df.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-	    Date date = new Date();
-		
-    	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
-					 "\n from `" + streamBucketName + "` " +											
-					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
-					 "\n AND data.json.date like \"" + df.format(date) +" %\" " +
-					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
-					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
-		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-//		LOG.debug(sql);
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JSONArray jsonList = new JSONArray();
-    	while(result.hasNext()) {
-    		jsonList.add(result.next());
-    	}
-    	return jsonList;
-    }
-    
-    /**
      * 2주간 발생된 일별 출입인증 시도 건수. - old
      * 
      * @return JsonObject
@@ -351,25 +350,6 @@ public class CouchbaseService {
 											" group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
 											" order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC "));
 		
-    	Iterator<N1qlQueryRow> result = query.iterator();
-    	JSONArray jsonList = new JSONArray();
-    	while(result.hasNext()) {
-    		jsonList.add(result.next());
-    	}
-    	return jsonList;
-    }
-    
-    /**
-	 * 6. 최근 생성 블록 요약(7)
-	 * select block info by height limit 7
-	 * TODO date format 변경가능
-	 * 
-	 * @return JSONArray
-	 * @throws Exception
-	 */
-    public JSONArray selectBlockByheight() throws Exception {
-    	Bucket bucket = connectBucket(blockBucketName);
-    	N1qlQueryResult query = bucket.query(N1qlQuery.simple("SELECT height, time, array_count(tx) as speeding FROM `" + blockBucketName + "` order by height desc limit 7"));
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
