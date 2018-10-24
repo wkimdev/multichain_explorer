@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
@@ -52,9 +51,6 @@ public class CouchbaseService {
     @Value("${couchbase.bucket.streams.name}")
     private String streamBucketName;
     
-    @Value("${spring.mvc.locale}")
-	Locale locale = null;
-	
 	@Value("${spring.jackson.time-zone}")
 	TimeZone timeZone;
     
@@ -76,14 +72,11 @@ public class CouchbaseService {
 	}
 	
 	/**
-	 * 로컬 locale 값 호출 for test
-	 * test 이후 지우기.
+	 * 로컬 locale 값 호출
 	 * 
 	 * @return String
 	 */
 	public String getLocale() {
-		//System.out.println("this is locale : "+locale.toString());
-		//return locale.toString();
 		String ID = timeZone.getID();
 		return ID;
 	}
@@ -113,15 +106,22 @@ public class CouchbaseService {
 	 * @throws Exception
 	 */
      public JsonObject selectSpeedBySearch(String search) throws Exception {
-    	  JsonObject jsonObject = null;
     	  Bucket streambucket = connectBucket(streamBucketName);
-    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE META(`"+ streamBucketName + "`).id = \"" + search + "\""));
-    	  Iterator<N1qlQueryRow> result = query.iterator();    	  
-    	      	  
-    	  while(result.hasNext()) {
-            N1qlQueryRow nqr = result.next();
-            jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-    	  }
+    	  String sql = " SELECT height, data.json.clue as clue, MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.location as location, \r\n" + 
+	  			   " data.json.lat as lat, data.json.lng as lng, data.json.vihiclespeed as vihiclespeed \r\n" + 
+	  		       " FROM `Streams` WHERE txid = \""+ search +"\" ";
+    	  
+    	  //LOG.debug(sql);
+    	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple(sql));
+    	  Iterator<N1qlQueryRow> result = query.iterator();
+    	  JsonObject jsonObject = new JsonObject();
+    	  
+    	  try {
+    		  N1qlQueryRow nqr = result.next();
+    		  jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+    	  } catch (Exception e) {
+    		  e.printStackTrace();
+		}
     	  return jsonObject;
       }
      
@@ -133,15 +133,21 @@ public class CouchbaseService {
  	 * @throws Exception
  	 */
      public JsonObject selectFingerPrintBySearch(String search) throws Exception {
-     	 JsonObject jsonObject = null;
 	 	 Bucket streambucket = connectBucket(streamBucketName);
-	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple("SELECT * FROM `" + streamBucketName + "` WHERE META(`"+ streamBucketName + "`).id = \""+ search +"\""));
+	 	 String sql = " SELECT height, data.json.clue as clue, MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.location as location, \r\n" + 
+	  			   " data.json.lat as lat, data.json.lng as lng, data.json.person as person, data.json.state as state \r\n" + 
+	  		       " FROM `Streams` WHERE txid = \""+ search +"\" ";
+	 	 //LOG.debug(sql);
+	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple(sql));
 	 	 Iterator<N1qlQueryRow> result = query.iterator();
-	 	  
-	 	 while(result.hasNext()) {
-	        N1qlQueryRow nqr = result.next();
-	        jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(streamBucketName).toString());
-	 	 }
+	 	JsonObject jsonObject = new JsonObject();
+	 	
+	 	try {
+	 		N1qlQueryRow nqr = result.next();
+	        jsonObject = CommonUtil.convertGsonFromString(nqr.value().toString());
+	 	} catch(Exception e) {
+	 		e.printStackTrace();
+	 	}
 	 	 return jsonObject;
       }
      
@@ -156,7 +162,7 @@ public class CouchbaseService {
  		
 		String sql = " SELECT count(*) as speedCnt FROM `" + streamBucketName + 
 				 	 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
-					 "  AND data.json.date like \"" + getLocalTimeSet() +" %\" ";
+					 "  AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	//LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
@@ -181,9 +187,9 @@ public class CouchbaseService {
      	
 		String sql = " SELECT count(*) as fingerPrintCnt FROM `" + streamBucketName + 
 					 "` WHERE streamKeys = \"\\\"inout\\\"\" " + 
-					 "  AND data.json.date like \"" + getLocalTimeSet() +" %\" ";
+					 "  AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-     	//LOG.debug(sql);
+//     	LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -204,10 +210,14 @@ public class CouchbaseService {
      public JSONArray selectStreamBySpeed() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
      	
-     	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
+     	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date FROM `" + streamBucketName +
 				 "` where streamKeys = \"\\\"speeding\\\"\" " +
-				 "\n  AND -MILLIS(data.json.date) < 0 " +
-     			 "\n  order by -MILLIS(data.json.date) limit 10 ";
+    			 "\n order by data.json.date desc limit 10 ";
+     			
+//     	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
+//				 "` where streamKeys = \"\\\"speeding\\\"\" " +
+//				 "\n  AND -MILLIS(data.json.date) < 0 " +
+//     			 "\n  order by -MILLIS(data.json.date) limit 10 ";
      	//LOG.debug(sql);
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
@@ -227,10 +237,13 @@ public class CouchbaseService {
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
      	
-		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
-					 "\n  AND -MILLIS(data.json.date) < 0 " +
-	    			 "\n  order by -MILLIS(data.json.date) limit 10 ";
-		
+     	String sql = "SELECT MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
+     				"\n order by data.json.date desc limit 10 ";
+     	
+//		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
+//					 "\n  AND -MILLIS(data.json.date) < 0 " +
+//	    			 "\n  order by -MILLIS(data.json.date) limit 10 ";
+		//LOG.debug(sql);
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
@@ -249,15 +262,21 @@ public class CouchbaseService {
     public JSONArray selectTodaySpeedCnt() throws Exception {
     	Bucket bucket = connectBucket(streamBucketName);
 	    
-    	// SELECT DATE_PART_MILLIS(1463284740000, 'hour', '+getLocale()+') as hour;
-    	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
-					 "\n from `" + streamBucketName + "` " +											
-					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
-					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
-					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
-					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+    	String sql = " select count(*) as speedCnt, DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") as date  " + 
+				 "\n from `" + streamBucketName + "` " +											
+				 "\n where streamKeys = \"\\\"speeding\\\"\" " +
+				 "\n AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" " +
+				 "\n group by DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") " + 											
+				 "\n order by DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") desc "; 
+
+//    	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+//					 "\n from `" + streamBucketName + "` " +											
+//					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
+//					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
+//					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+//					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		LOG.debug(sql);
+		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
@@ -275,12 +294,19 @@ public class CouchbaseService {
     public JSONArray selectTodayDoorAccessCnt() throws Exception {
     	Bucket bucket = connectBucket(streamBucketName);
     	
-    	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
-					 "\n from `" + streamBucketName + "` " +											
-					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
-					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
-					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
-					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
+    	String sql = " select count(*) as fingerPrintCnt, DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") as date  " + 
+				 "\n from `" + streamBucketName + "` " +											
+				 "\n where streamKeys = \"\\\"inout\\\"\" " + 
+				 "\n AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" " +
+				 "\n group by DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") " + 											
+				 "\n order by DATE_PART_MILLIS(data.json.date, 'hour', \""+ getLocale() +"\") desc ";
+    	
+//    	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
+//					 "\n from `" + streamBucketName + "` " +											
+//					 "\n where streamKeys = \"\\\"inout\\\"\" " + 
+//					 "\n AND data.json.date like \"" + getLocalTimeSet() +" %\" " +
+//					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
+//					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
 		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();

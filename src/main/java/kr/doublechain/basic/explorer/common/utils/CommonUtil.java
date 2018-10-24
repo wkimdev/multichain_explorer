@@ -292,9 +292,5 @@ public class CommonUtil {
 		} else {
 			return null;
 		}
-
 	}
-
-	
-
 }

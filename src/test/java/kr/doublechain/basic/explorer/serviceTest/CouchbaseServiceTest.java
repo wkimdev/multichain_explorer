@@ -42,9 +42,6 @@ public class CouchbaseServiceTest {
 	@Autowired
 	DccService dccService;
 	
-	@Value("${spring.mvc.locale}")
-	Locale locale = null;
-	
 	@Value("${spring.jackson.time-zone}")
 	TimeZone timeZone;
 	
@@ -118,24 +115,11 @@ public class CouchbaseServiceTest {
 		
 	}
 	
-	//@Test 
+	@Test 
 	public void selectSearch() throws Exception {
-		//search
-		//52f69ef0ba0c75cc9fc3cb4da6204a78065029aa43c597af4b8a2f6696b687fa
-		//008e581ce004414376ede53a695f6de52cff0479c7e84b9260995811eef67856
-		//"1887"
-		System.out.println(couchbaseService.selectFingerPrintBySearch("214cfb10b31f5d16d232c4415348f3f767ef2deb91980dcd17b23337f76c161f"));
+		System.out.println(couchbaseService.selectFingerPrintBySearch("83d5f216377d9969c21b5377972a5b5a5cde508d07b0ea5ea851ae341bea04bd"));
 	}
 		
-	//@Test
-	public void selectCurrentSpeedingCnt() throws Exception {
-		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
-	}
-	
-	//@Test
-	public void selectCurrentDoorAccessCnt() throws Exception {
-		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
-	}
 	
 	//@Test
 	public void selectSpeedingCnt() throws Exception {
@@ -170,17 +154,12 @@ public class CouchbaseServiceTest {
 	
 	//@Test
 	public void selectSpeedBySearch() throws Exception {
-		JsonObject jsonObject = couchbaseService.selectSpeedBySearch("f663e2a895db9fa235a940182fb67eada1e361e79b4998730fa9782e70f0a797");
+		JsonObject jsonObject = couchbaseService.selectSpeedBySearch("3a7eab2e532d4419e07e097d1dc2fcaeeffab223b7aaaf9d40eba93eed438fce");
 		JsonObject test = new JsonObject();
 		test.add("row", jsonObject.getAsJsonObject());
 		System.out.println(test.getAsJsonObject("row").get("height"));
 
 	} 
-	
-	//@Test
-	public void selectStreamBySpeed() throws Exception {
-		System.out.println(couchbaseService.selectStreamBySpeed());
-	}
 	
 	//@Test
 	public void bcTimeTest() throws Exception {
@@ -197,11 +176,27 @@ public class CouchbaseServiceTest {
         System.out.println(df.format(date));
 	}
 	
-	@Test
+	//@Test
 	public void selectTodaySpeedCnt() throws Exception {
 		//System.out.println(couchbaseService.selectTwoWeeksSpeedCnt()); // old
-		System.out.println(couchbaseService.selectTodaySpeedCnt()); //speed
-		//System.out.println(couchbaseService.selectTodayDoorAccessCnt());
+		//System.out.println(couchbaseService.selectTodaySpeedCnt()); //speed
+		System.out.println(couchbaseService.selectTodayDoorAccessCnt());
+	}
+	
+	//@Test
+	public void selectCurrentSpeedingCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectSpeedCntByCurrent()));
+	}
+	
+	//@Test
+	public void selectStreamBySpeed() throws Exception {
+		//System.out.println(couchbaseService.selectStreamBySpeed());
+		System.out.println(couchbaseService.selectStreamByFingerPrint());
+	}
+	
+	//@Test
+	public void selectCurrentDoorAccessCnt() throws Exception {
+		System.out.println(CommonUtil.convertObjectFromGson(couchbaseService.selectFingerPrintCntByCurrent()));
 	}
 	
 	//@Test

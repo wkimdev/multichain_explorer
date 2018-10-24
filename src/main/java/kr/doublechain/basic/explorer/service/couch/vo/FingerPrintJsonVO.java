@@ -1,15 +1,27 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
+import java.math.BigInteger;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * FPDataVO from FingerPrint StreamVO
+ * FingerPrintJsonVO
  *
  */
 @Getter
 @Setter
 public class FingerPrintJsonVO {
+	
+	/**
+	 * 블록 넘버
+	 */
+	private BigInteger height;
+	
+	/**
+	 * confirm check value
+	 */
+	private BigInteger checkConfirmNum;
 	
 	/**
 	 * picture

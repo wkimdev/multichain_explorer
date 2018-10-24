@@ -1,16 +1,28 @@
 package kr.doublechain.basic.explorer.service.couch.vo;
 
 
+import java.math.BigInteger;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * SpeedJsonVO from SpeedDataVO
+ * SpeedJsonVO
  *
  */
 @Getter
 @Setter
 public class SpeedJsonVO {
+	
+	/**
+	 * 블록 넘버
+	 */
+	private BigInteger height;
+	
+	/**
+	 * confirm check value
+	 */
+	private BigInteger checkConfirmNum;
 	
 	/**
 	 * clue

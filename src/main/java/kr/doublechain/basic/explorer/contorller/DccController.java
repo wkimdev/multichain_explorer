@@ -2,6 +2,7 @@ package kr.doublechain.basic.explorer.contorller;
 
 import java.math.BigInteger;
 
+
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
@@ -31,12 +32,12 @@ import kr.doublechain.basic.explorer.service.couch.vo.DataResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintCntResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintCntVO;
-import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintVO;
+import kr.doublechain.basic.explorer.service.couch.vo.FingerPrintJsonVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntResponse;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedCntVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedDataResponse;
+import kr.doublechain.basic.explorer.service.couch.vo.SpeedJsonVO;
 import kr.doublechain.basic.explorer.service.couch.vo.SpeedListVO;
-import kr.doublechain.basic.explorer.service.couch.vo.SpeedVO;
 import kr.doublechain.basic.explorer.service.dcc.DccService;
 import kr.doublechain.basic.explorer.service.user.UserService;
 
@@ -94,33 +95,31 @@ public class DccController {
 	@ApiOperation(value = "스피딩 스트림 검색", notes = "speeding Id 검색어로 스트림 상세 정보를 가져온다.")
     @GetMapping(value="/search/speeds/{searches}")
     @ResponseBody
-    public DccResponse<SpeedVO> searchStream(@PathVariable("searches")String search, HttpServletResponse response) throws Exception {
+    public DccResponse<SpeedJsonVO> searchStream(@PathVariable("searches")String search, HttpServletResponse response) throws Exception {
 		Header header = new Header();
 		Meta meta = new Meta();
 
 		JsonObject jsonObject = couchbaseService.selectSpeedBySearch(search);
-		
 		
 		// 현재 검색한 트랜잭션의 블럭 넘버 정보 호출
 		JsonObject searchHeight = new JsonObject();
 		searchHeight.add("row", jsonObject.getAsJsonObject());
 		JsonElement searchBlock = searchHeight.getAsJsonObject("row").get("height");		
 		
-		
 		// DB에서 최신 블럭 호출.
 		JsonObject getLastBlock = couchbaseService.selectLastBlock();		
-		JsonObject test = new JsonObject();
-		test.add("row", getLastBlock.getAsJsonObject());
-		JsonElement lastBlock = test.getAsJsonObject("row").get("height");
+		JsonObject jsonObject2 = new JsonObject();
+		jsonObject2.add("row", getLastBlock.getAsJsonObject());
+		JsonElement lastBlock = jsonObject2.getAsJsonObject("row").get("height");
 		
 		// confirm check
 		BigInteger CheckConfirmNum = getConfirmCheck(lastBlock, searchBlock);
 		jsonObject.addProperty("checkConfirmNum", CheckConfirmNum);
 		
-		SpeedVO speedVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), SpeedVO.class);
+		SpeedJsonVO speedJsonVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), SpeedJsonVO.class);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-		return CommonUtil.Response(header, speedVO, meta);
+		return CommonUtil.Response(header, speedJsonVO, meta);
     }
 	
 	/**
@@ -133,7 +132,7 @@ public class DccController {
 	@ApiOperation(value = "지문 스트림 검색", notes = "finger txid Id 검색어로 스트림 상세 정보를 가져온다.")
     @GetMapping(value="/search/fingerprints/{searches}")
     @ResponseBody
-    public DccResponse<FingerPrintVO> searchFingerPrint(@PathVariable("searches")String search, HttpServletResponse response) throws Exception {
+    public DccResponse<FingerPrintJsonVO> searchFingerPrint(@PathVariable("searches")String search, HttpServletResponse response) throws Exception {
 		Header header = new Header();
 		Meta meta = new Meta();
 
@@ -147,18 +146,18 @@ public class DccController {
 		
 		// DB에서 최신 블럭 호출.
 		JsonObject getLastBlock = couchbaseService.selectLastBlock();		
-		JsonObject test = new JsonObject();
-		test.add("row", getLastBlock.getAsJsonObject());
-		JsonElement lastBlock = test.getAsJsonObject("row").get("height");
+		JsonObject jsonObject2 = new JsonObject();
+		jsonObject2.add("row", getLastBlock.getAsJsonObject());
+		JsonElement lastBlock = jsonObject2.getAsJsonObject("row").get("height");
 		
 		// confirm check
 		BigInteger CheckConfirmNum = getConfirmCheck(lastBlock, searchBlock);
 		jsonObject.addProperty("checkConfirmNum", CheckConfirmNum);
 				
-		FingerPrintVO fingerPrintVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), FingerPrintVO.class);
+		FingerPrintJsonVO fingerPrintJsonVO = CommonUtil.convertObjectFromJsonString(jsonObject.toString(), FingerPrintJsonVO.class);
 		
 		header.setCode(Constants.HTTPSTATUS_OK.ITYPE).setMessage("EveryThing is working");
-		return CommonUtil.Response(header, fingerPrintVO, meta);
+		return CommonUtil.Response(header, fingerPrintJsonVO, meta);
 	}
 	
 	/**
