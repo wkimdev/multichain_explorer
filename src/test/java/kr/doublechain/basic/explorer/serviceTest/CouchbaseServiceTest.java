@@ -54,7 +54,6 @@ public class CouchbaseServiceTest {
 //      slr.setDefaultLocale(locale);
 //      return slr;
 //    }
-
 	
 	//@Test
 	public void upsertBucketBlockTest() throws Exception {
@@ -201,8 +200,8 @@ public class CouchbaseServiceTest {
 	@Test
 	public void selectTodaySpeedCnt() throws Exception {
 		//System.out.println(couchbaseService.selectTwoWeeksSpeedCnt()); // old
-		//System.out.println(couchbaseService.selectTodaySpeedCnt()); //speed
-		System.out.println(couchbaseService.selectTodayDoorAccessCnt());
+		System.out.println(couchbaseService.selectTodaySpeedCnt()); //speed
+		//System.out.println(couchbaseService.selectTodayDoorAccessCnt());
 	}
 	
 	//@Test

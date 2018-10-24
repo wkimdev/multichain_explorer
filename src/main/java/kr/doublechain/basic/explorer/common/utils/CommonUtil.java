@@ -42,11 +42,6 @@ import kr.doublechain.basic.explorer.service.couch.vo.FPrintListVO;
  * CommonUtil class
  *
  */
-/**
- * 
- * created by wkimdev
- *
- */
 @Component
 public class CommonUtil {
 	

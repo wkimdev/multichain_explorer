@@ -2,7 +2,6 @@ package kr.doublechain.basic.explorer.service.couch;
 
 import static com.couchbase.client.java.query.Select.select;
 
-
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -87,7 +83,9 @@ public class CouchbaseService {
 	 */
 	public String getLocale() {
 		//System.out.println("this is locale : "+locale.toString());
-		return locale.toString();
+		//return locale.toString();
+		String ID = timeZone.getID();
+		return ID;
 	}
 	
 	
@@ -210,7 +208,7 @@ public class CouchbaseService {
 				 "` where streamKeys = \"\\\"speeding\\\"\" " +
 				 "\n  AND -MILLIS(data.json.date) < 0 " +
      			 "\n  order by -MILLIS(data.json.date) limit 10 ";
-     	
+     	//LOG.debug(sql);
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
@@ -249,10 +247,9 @@ public class CouchbaseService {
      * @throws Exception
      */
     public JSONArray selectTodaySpeedCnt() throws Exception {
-    	JsonObject jsonObject = null;
     	Bucket bucket = connectBucket(streamBucketName);
 	    
-    	// SELECT DATE_PART_MILLIS(1463284740000, 'hour', '+getLocale()+') as year;
+    	// SELECT DATE_PART_MILLIS(1463284740000, 'hour', '+getLocale()+') as hour;
     	String sql = " select count(*) as speedCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
 					 "\n from `" + streamBucketName + "` " +											
 					 "\n where streamKeys = \"\\\"speeding\\\"\" " + 
@@ -260,7 +257,7 @@ public class CouchbaseService {
 					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		//LOG.debug(sql);
+		LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
@@ -276,7 +273,6 @@ public class CouchbaseService {
      * @throws Exception
      */
     public JSONArray selectTodayDoorAccessCnt() throws Exception {
-    	JsonObject jsonObject = null;
     	Bucket bucket = connectBucket(streamBucketName);
     	
     	String sql = " select count(*) as fingerPrintCnt, SUBSTR(data.json.date, 11, 2) as date  " + 
@@ -303,7 +299,6 @@ public class CouchbaseService {
      * @throws Exception
      */
     public JSONArray selectTwoWeeksSpeedCnt() throws Exception {
-    	JsonObject jsonObject = null;
     	Bucket bucket = connectBucket(streamBucketName);    	
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 		Date date = new Date();	// current date
@@ -334,7 +329,6 @@ public class CouchbaseService {
      * @throws Exception
      */
     public JSONArray selectTwoWeeksFingerPrints() throws Exception {
-    	JsonObject jsonObject = null;
     	Bucket bucket = connectBucket(streamBucketName);    	
     	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 		Date date = new Date();	// current date
@@ -362,7 +356,6 @@ public class CouchbaseService {
     	Bucket bucket = connectBucket(blockBucketName);
     	N1qlQueryResult query = bucket.query(select("*").from(blockBucketName).where("height=" + blockNumber.toString()).orderBy(Sort.desc("height")).limit(1).offset(0));
         Iterator<N1qlQueryRow> result = query.iterator();
-        JsonObject jsonObject = null;
         while(result.hasNext()) {
             N1qlQueryRow nqr = result.next();
             //jsonObject = CommonUtil.convertGsonFromString(nqr.value().get(blockBucketName).toString());

@@ -1,5 +1,6 @@
 package kr.doublechain.basic.explorer.serviceTest;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -87,9 +88,11 @@ public class UserServiceTest {
 		System.out.println("2 :"+dateFormat.format(cal.getTime()));
 	}
 	
-	//@Test
+	@Test
 	public void getTest() throws Exception {
-		System.out.println("test unit : "+dccController.getTwoWeeksSpeeds());
+		Timestamp time = new Timestamp(System.currentTimeMillis());
+		System.out.println(time);
+		//System.out.println("test unit : "+dccController.getTwoWeeksSpeeds());
 	}
 	
 }

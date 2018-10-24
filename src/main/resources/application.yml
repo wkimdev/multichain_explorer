@@ -12,15 +12,15 @@ spring:
   jmx:
     default-domain: datasource_home
   mvc:
-    #locale: ko_KR
-    locale: es_ES
+    locale: ko_KR
+    #locale: es_ES
     favicon:
       enabled: "false"
     servlet:
       load-on-startup: "-1"
   jackson:
-#    time-zone: Europe/Madrid
-    time-zone: Asia/Seoul         
+    #time-zone: Europe/Madrid
+    time-zone: Asia/Seoul
     default-property-inclusion: NON_NULL
   session:
     store-type: none
@@ -29,7 +29,8 @@ spring:
 # was port override set vm option : -Dserver.port=8080    
 server:
   port: 8081  
-  address: 192.168.15.10
+  #address: 192.168.15.10
+  address: 192.168.0.142
   servlet-path: /
   compression:
     enabled: "true"
@@ -66,11 +67,8 @@ dcc:
   user: multichainrpc  
   password: dc!393939  
   port: "4444"
-  #chainname: IoT
-  chainname: exco2
-  #genesisblockhash: '"00197480c24fda05bf12de3df9c0a244aa053f75118aa345ca820748718f9fa8"'
-  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
-  #host: 192.168.0.144  
+  chainname: exco
+  genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
   host: 192.168.15.10 
   
 # for couchbase console
@@ -85,9 +83,9 @@ couchbase:
       name: Streams
     name: Explorer
     expiry: 0
-    user: Administrator
-    password: dc!393939
-    ip: 127.0.0.1
+    user: jsg0212
+    password: dc393939
+    ip: 192.168.0.145
 
 #websocket channel
 websocket:
@@ -118,6 +116,8 @@ spring:
     servlet:
       load-on-startup: "-1"
   jackson:
+  #    time-zone: Europe/Madrid
+    time-zone: Asia/Seoul         
     default-property-inclusion: NON_NULL
   session:
     store-type: none

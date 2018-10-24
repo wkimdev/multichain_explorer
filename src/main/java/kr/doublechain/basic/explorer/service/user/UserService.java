@@ -20,7 +20,7 @@ public class UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 	
 	/**
- 	 * 현재날짜 기준 2주전, 각 날짜 값 
+ 	 * 현재날짜 기준 2주전, 각 날짜 값 -old 
  	 * 
  	 * @return JSONArray
  	 * @throws Exception
