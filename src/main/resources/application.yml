@@ -19,8 +19,8 @@ spring:
     servlet:
       load-on-startup: "-1"
   jackson:
-#    time-zone: Europe/Madrid
-    time-zone: Asia/Seoul         
+    time-zone: Europe/Madrid
+#    time-zone: Asia/Seoul         
     default-property-inclusion: NON_NULL
   session:
     store-type: none
@@ -67,9 +67,9 @@ dcc:
   password: dc!393939  
   port: "4444"
   #chainname: IoT
-  chainname: exco2
+  chainname: exco
   #genesisblockhash: '"00197480c24fda05bf12de3df9c0a244aa053f75118aa345ca820748718f9fa8"'
-  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
+  genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
   #host: 192.168.0.144  
   host: 192.168.15.10 
   
@@ -163,8 +163,8 @@ dcc:
   user: multichainrpc  
   password: dc!393939  
   port: "4444"  
-  chainname: exco2  
-  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
+  chainname: exco2 
+  genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
   host: 192.168.15.10 
   
 # for couchbase console
