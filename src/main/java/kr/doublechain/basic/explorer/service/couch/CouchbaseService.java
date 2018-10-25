@@ -78,6 +78,7 @@ public class CouchbaseService {
 	 */
 	public String getLocale() {
 		String ID = timeZone.getID();
+		// gmt + 9
 		return ID;
 	}
 	
@@ -137,6 +138,7 @@ public class CouchbaseService {
 	 	 String sql = " SELECT height, data.json.clue as clue, MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.location as location, \r\n" + 
 	  			   " data.json.lat as lat, data.json.lng as lng, data.json.person as person, data.json.state as state \r\n" + 
 	  		       " FROM `Streams` WHERE txid = \""+ search +"\" ";
+	 	 
 	 	 //LOG.debug(sql);
 	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple(sql));
 	 	 Iterator<N1qlQueryRow> result = query.iterator();
@@ -212,7 +214,8 @@ public class CouchbaseService {
      	
      	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date FROM `" + streamBucketName +
 				 "` where streamKeys = \"\\\"speeding\\\"\" " +
-    			 "\n order by data.json.date desc limit 10 ";
+				 "\n  AND -data.json.date < 0 " +
+     			 "\n  order by -data.json.date limit 10 ";
      			
 //     	String sql = "SELECT txid, data.json.vihiclespeed as vihiclespeed, data.json.location as location, data.json.date as date FROM `" + streamBucketName +
 //				 "` where streamKeys = \"\\\"speeding\\\"\" " +
@@ -237,8 +240,10 @@ public class CouchbaseService {
      public JSONArray selectStreamByFingerPrint() throws Exception {
      	Bucket bucket = connectBucket(streamBucketName);
      	
-     	String sql = "SELECT MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
-     				"\n order by data.json.date desc limit 10 ";
+     	String sql = "SELECT MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName +
+     			    "` where streamKeys = \"\\\"inout\\\"\" " +
+     			    "\n  AND -data.json.date < 0 " +
+    			    "\n  order by -data.json.date limit 10 ";
      	
 //		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
 //					 "\n  AND -MILLIS(data.json.date) < 0 " +

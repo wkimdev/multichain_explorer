@@ -115,9 +115,9 @@ public class CouchbaseServiceTest {
 		
 	}
 	
-	@Test 
+	@Test
 	public void selectSearch() throws Exception {
-		System.out.println(couchbaseService.selectFingerPrintBySearch("83d5f216377d9969c21b5377972a5b5a5cde508d07b0ea5ea851ae341bea04bd"));
+		System.out.println(couchbaseService.selectFingerPrintBySearch("ee42daf1807bb830bdd440bfc4dea744a5b36ea36eb84c07844d512dbd856ee5"));
 	}
 		
 	
@@ -202,13 +202,16 @@ public class CouchbaseServiceTest {
 	//@Test
 	public void selectLocaleValue() throws Exception {
 		//System.out.println(locale.toString());
-		System.out.println(timeZone.getID()); //Europe/Madrid --> Db에서 처리
+		//System.out.println(timeZone.getID()); //Europe/Madrid --> Db에서 처리
 		String ID = timeZone.getID();
 		Date date = new Date();
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		df.setTimeZone(TimeZone.getTimeZone(ID));
-		System.out.println("Date and time in Madrid: " + df.format(date));
+		//System.out.println("Date and time in Madrid: " + df.format(date));
+		int offset = timeZone.getRawOffset();
+		String text = String.format("%s%02d%02d", offset >= 0 ? "+" : "-", offset / 3600000, (offset / 60000) % 60);
+		System.out.println("test >>>> "+text); //+0900
 		
 	}
 }

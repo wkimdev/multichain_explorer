@@ -11,6 +11,11 @@
 - sockjs-client : 1.0.2
 - stomp-websocket : 2.3.3
 
+## 프론트단 + API 호출 서버단 구조
+- 전체구조(frontend + backend)
+![projectarch](/path/to/img.jpg)
+
+
 ## localhost path setting
 - application.yml  
 
