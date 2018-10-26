@@ -115,7 +115,7 @@ public class CouchbaseServiceTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void selectSearch() throws Exception {
 		System.out.println(couchbaseService.selectFingerPrintBySearch("ee42daf1807bb830bdd440bfc4dea744a5b36ea36eb84c07844d512dbd856ee5"));
 	}

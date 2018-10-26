@@ -112,7 +112,6 @@ public class CouchbaseService {
 	  			   " data.json.lat as lat, data.json.lng as lng, data.json.vihiclespeed as vihiclespeed \r\n" + 
 	  		       " FROM `Streams` WHERE txid = \""+ search +"\" ";
     	  
-    	  //LOG.debug(sql);
     	  N1qlQueryResult query = streambucket.query(N1qlQuery.simple(sql));
     	  Iterator<N1qlQueryRow> result = query.iterator();
     	  JsonObject jsonObject = new JsonObject();
@@ -139,7 +138,6 @@ public class CouchbaseService {
 	  			   " data.json.lat as lat, data.json.lng as lng, data.json.person as person, data.json.state as state \r\n" + 
 	  		       " FROM `Streams` WHERE txid = \""+ search +"\" ";
 	 	 
-	 	 //LOG.debug(sql);
 	 	 N1qlQueryResult query = streambucket.query(N1qlQuery.simple(sql));
 	 	 Iterator<N1qlQueryRow> result = query.iterator();
 	 	JsonObject jsonObject = new JsonObject();
@@ -166,7 +164,6 @@ public class CouchbaseService {
 				 	 "` WHERE streamKeys = \"\\\"speeding\\\"\" " +
 					 "  AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-     	//LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -191,7 +188,6 @@ public class CouchbaseService {
 					 "` WHERE streamKeys = \"\\\"inout\\\"\" " + 
 					 "  AND MILLIS_TO_TZ(data.json.date, \""+ getLocale() +"\") like \"" + getLocalTimeSet() +"%\" ";
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-//     	LOG.debug(sql);
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JsonObject jsonObject = new JsonObject();
      	try {
@@ -221,7 +217,6 @@ public class CouchbaseService {
 //				 "` where streamKeys = \"\\\"speeding\\\"\" " +
 //				 "\n  AND -MILLIS(data.json.date) < 0 " +
 //     			 "\n  order by -MILLIS(data.json.date) limit 10 ";
-     	//LOG.debug(sql);
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
@@ -248,7 +243,6 @@ public class CouchbaseService {
 //		String sql = "SELECT data.json.date as date, data.json.person as person, data.json.state as state, txid FROM `" + streamBucketName + "` where streamKeys = \"\\\"inout\\\"\" " +
 //					 "\n  AND -MILLIS(data.json.date) < 0 " +
 //	    			 "\n  order by -MILLIS(data.json.date) limit 10 ";
-		//LOG.debug(sql);
      	N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
      	Iterator<N1qlQueryRow> result = query.iterator();
      	JSONArray jsonList = new JSONArray();
@@ -281,7 +275,6 @@ public class CouchbaseService {
 //					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 //					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
@@ -313,7 +306,6 @@ public class CouchbaseService {
 //					 "\n group by SUBSTR(data.json.date, 11, 2) " + 											
 //					 "\n order by SUBSTR(data.json.date, 11, 2) ASC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
@@ -344,7 +336,6 @@ public class CouchbaseService {
 					 "\n group by DATE_FORMAT_STR(data.json.date, '1111-11-11') " + 											
 					 "\n order by DATE_FORMAT_STR(data.json.date, '1111-11-11') DESC ";
 		N1qlQueryResult query = bucket.query(N1qlQuery.simple(sql));
-		//LOG.debug(sql);
     	Iterator<N1qlQueryRow> result = query.iterator();
     	JSONArray jsonList = new JSONArray();
     	while(result.hasNext()) {
