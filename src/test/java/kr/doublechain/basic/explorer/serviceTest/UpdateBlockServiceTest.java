@@ -46,7 +46,7 @@ public class UpdateBlockServiceTest {
 //	@Test
 	public void mergeTxTest() throws Exception {
 		updateBlockService
-				.mergeTx(new BigInteger("0"));
+				.mergeTx(new BigInteger("0"), true);
 	}
 
 //	@Test
@@ -54,7 +54,7 @@ public class UpdateBlockServiceTest {
 		for (int i = 0; i < 10; i++) {
 			JsonObject jo = dccService.getBlock(new BigInteger(i + ""));
 			updateBlockService.mergeBlock(jo);
-			updateBlockService.mergeTx(new BigInteger(i + ""));
+			updateBlockService.mergeTx(new BigInteger(i + ""), true);
 			System.out.println(i);
 		}
 	}
@@ -65,9 +65,9 @@ public class UpdateBlockServiceTest {
 	}
 
 //	@Test
-	public void startTest() throws Exception {
-		updateBlockService.start();
-	}
+//	public void startTest() throws Exception {
+//		updateBlockService.start();
+//	}
 
 //	@Test
 	public void validBlockchainTest() throws Exception {

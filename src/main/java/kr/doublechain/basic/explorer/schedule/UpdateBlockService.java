@@ -107,7 +107,7 @@ public class UpdateBlockService {
 	 * @return void
 	 * @throws Exception
 	 */
-	public void mergeTx(BigInteger height) throws Exception {
+	public void mergeTx(BigInteger height, boolean initFlag) throws Exception {
 
 		// if ((block.get("height").toString()).equals("0")) {
 		// JsonObject genesisBlock = dccService.getBlockWithTx(new BigInteger("0"));
@@ -145,11 +145,11 @@ public class UpdateBlockService {
 			transaction.add("blocktime", block.get("time"));
 
 			couchbaseService.upsertBucketTransaction(transaction);
-			mergeStream(transaction);
+			mergeStream(transaction, initFlag);
 		}
 	}
 
-	public void mergeStream(JsonObject transaction) throws Exception {
+	public void mergeStream(JsonObject transaction, boolean initFlag) throws Exception {
 
 		if (transaction.has("vout")) {
 
@@ -214,10 +214,12 @@ public class UpdateBlockService {
 								item.add("data", jo);
 							}
 							couchbaseService.upsertBucketStream(item);
-							if ((item.get("name")).getAsString().equals("speed") && (item.get("streamKeys")).getAsString().equals("\"speeding\"")) {
-								checkUpdateStreams("1");
-							} else if ((item.get("name")).getAsString().equals("finger") && (item.get("streamKeys")).getAsString().equals("\"inout\"")) {
-								checkUpdateStreams("0");
+							if(!initFlag) {
+								if ((item.get("name")).getAsString().equals("speed") && (item.get("streamKeys")).getAsString().equals("\"speeding\"")) {
+									checkUpdateStreams("1");
+								} else if ((item.get("name")).getAsString().equals("finger") && (item.get("streamKeys")).getAsString().equals("\"inout\"")) {
+									checkUpdateStreams("0");
+								}
 							}
 						}
 					}
@@ -272,7 +274,7 @@ public class UpdateBlockService {
 	 * @return JsonObject
 	 * @throws Exception
 	 */
-	public JsonObject init() throws Exception {
+	public JsonObject init(boolean initFlag) throws Exception {
 
 		BigInteger currentHeight = checkBlock();
 		JsonObject currentBlock = null;
@@ -281,7 +283,7 @@ public class UpdateBlockService {
 		currentBlock = dccService.getBlock(currentHeight);
 
 		mergeBlock(currentBlock);
-		mergeTx(currentHeight);
+		mergeTx(currentHeight, initFlag);
 
 		while (true) {
 
@@ -290,7 +292,7 @@ public class UpdateBlockService {
 				currentBlock = dccService.getBlock(currentHeight);
 
 				mergeBlock(currentBlock);
-				mergeTx(currentHeight);
+				mergeTx(currentHeight, initFlag);
 				System.out.println("Update Block : " + currentHeight);
 				// Thread.sleep(50);
 			} else {
@@ -300,38 +302,38 @@ public class UpdateBlockService {
 		return currentBlock;
 	}
 
-	public void start() throws Exception {
-
-		if (!validBlockchain()) {
-			System.out.println("Blockchain is not vaild.");
-			return;
-		}
-
-		BigInteger currentHeight = null;
-		JsonObject currentBlock = init();
-
-		// BigInteger currentHeight = checkBlock();
-		// JsonObject currentBlock = null;
-		while (true) {
-
-			currentHeight = checkBlock(currentBlock);
-			currentBlock = dccService.getBlock(currentHeight);
-
-			if (currentBlock.has("nextblockhash")) {
-				mergeBlock(currentBlock); // nextblockhash 업데이트
-
-				currentHeight = currentHeight.add(new BigInteger("1"));
-				currentBlock = dccService.getBlock(currentHeight);
-
-				mergeBlock(currentBlock);
-				mergeTx(currentHeight);
-				System.out.println("Update Block : " + currentHeight);
-				Thread.sleep(50);
-			} else {
-				Thread.sleep(1000);
-			}
-		}
-	}
+//	public void start() throws Exception {
+//
+//		if (!validBlockchain()) {
+//			System.out.println("Blockchain is not vaild.");
+//			return;
+//		}
+//
+//		BigInteger currentHeight = null;
+//		JsonObject currentBlock = init();
+//
+//		// BigInteger currentHeight = checkBlock();
+//		// JsonObject currentBlock = null;
+//		while (true) {
+//
+//			currentHeight = checkBlock(currentBlock);
+//			currentBlock = dccService.getBlock(currentHeight);
+//
+//			if (currentBlock.has("nextblockhash")) {
+//				mergeBlock(currentBlock); // nextblockhash 업데이트
+//
+//				currentHeight = currentHeight.add(new BigInteger("1"));
+//				currentBlock = dccService.getBlock(currentHeight);
+//
+//				mergeBlock(currentBlock);
+//				mergeTx(currentHeight);
+//				System.out.println("Update Block : " + currentHeight);
+//				Thread.sleep(50);
+//			} else {
+//				Thread.sleep(1000);
+//			}
+//		}
+//	}
 
 	public boolean validBlockchain() throws Exception {
 
