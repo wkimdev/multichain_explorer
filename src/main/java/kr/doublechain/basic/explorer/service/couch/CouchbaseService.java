@@ -82,8 +82,6 @@ public class CouchbaseService {
 		return ID;
 	}
 	
-	
-	
 	/**
 	 * 최신 블록값 호출
 	 */

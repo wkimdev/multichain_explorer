@@ -1,7 +1,7 @@
 #spring profiles : LOCAL
 #spring  setup and common configuration
 spring:
-  profiles:
+  profiles: 
     #active: local
   http:
     encoding:
@@ -27,7 +27,7 @@ spring:
 server:
   port: 8081  
   #address: 192.168.15.10
-  address: 192.168.0.142
+  address: 192.168.15.102
   servlet-path: /
   compression:
     enabled: "true"
@@ -97,7 +97,7 @@ websocket:
 #spring profiles : dev
 #spring  setup and common configuration
 spring:
-  profiles: dev   
+  profiles: dev
   http:
     encoding:
       charset: UTF-8
@@ -118,10 +118,11 @@ spring:
     store-type: none
     
 # tomcat
-# was port override set vm option : -Dserver.port=8080    
+# was port override set vm option : -Dserver.port=8082    
 server:
-  port: 8081
-  address: 192.168.15.10 
+  port: 8082
+  #address: 192.168.15.10
+  address: 192.168.15.102 
   servlet-path: /
   compression:
     enabled: "true"
@@ -155,12 +156,14 @@ logging:
         
 #dcc node setup        
 dcc:
-  user: multichainrpc  
-  password: dc!393939  
-  port: "4444"  
-  chainname: exco2  
-  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
-  host: 192.168.15.10 
+   user: multichainrpc  
+   password: dc!393939  
+#  port: "4444"  
+#  chainname: exco2  
+#  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
+   host: 192.168.15.10  
+   chainname: exco
+   genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
   
 # for couchbase console
 #couchbase setup
@@ -174,8 +177,11 @@ couchbase:
       name: Streams
     name: Explorer
     expiry: 0
-    user: Administrator
-    password: dc!393939
+#    user: Administrator
+#    password: dc!393939
+#    ip: 192.168.0.145
+    user: jsg0212
+    password: dc393939
     ip: 192.168.0.145
 
 #websocket channel
