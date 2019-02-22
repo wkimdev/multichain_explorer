@@ -26,8 +26,7 @@ spring:
 # was port override set vm option : -Dserver.port=8080    
 server:
   port: 8081  
-  #address: 192.168.15.10
-  address: 192.168.15.102
+  address: 
   servlet-path: /
   compression:
     enabled: "true"
@@ -61,12 +60,12 @@ logging:
         
 #dcc node setup        
 dcc:
-  user: multichainrpc  
-  password: dc!393939  
-  port: "4444"
-  chainname: exco
+  user:   
+  password:   
+  port: 
+  chainname: 
   genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
-  host: 192.168.15.10 
+  host: 
   
 # for couchbase console
 #couchbase setup
@@ -80,9 +79,9 @@ couchbase:
       name: Streams
     name: Explorer
     expiry: 0
-    user: jsg0212
-    password: dc393939
-    ip: 192.168.0.145
+    user: 
+    password: 
+    ip: 
 
 #websocket channel
 websocket:
@@ -93,102 +92,3 @@ websocket:
   subscribe:
     channel: '/subscribe'
     
---- 
-#spring profiles : dev
-#spring  setup and common configuration
-spring:
-  profiles: dev
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: "true"
-    converters:
-      preferred-json-mapper: jackson
-  jmx:
-    default-domain: datasource_home
-    favicon:
-      enabled: "false"
-    servlet:
-      load-on-startup: "-1"
-  jackson:
-    #time-zone: Europe/Madrid
-    time-zone: Asia/Seoul         
-    default-property-inclusion: NON_NULL
-  session:
-    store-type: none
-    
-# tomcat
-# was port override set vm option : -Dserver.port=8082    
-server:
-  port: 8082
-  #address: 192.168.15.10
-  address: 192.168.15.102 
-  servlet-path: /
-  compression:
-    enabled: "true"
-    min-response-size: "1"
-  tomcat:
-    uri-encoding: UTF-8
-
-#schedule pool size
-schedule:
-  pool:
-    size: 5
-    
-#api version
-api:
-  contextRoot: /v1
-  version: v1
-
-#company mark up 
-company:
-  host:
-    name: 'http://www.doublechain.co.kr'  
-    
-#logging    
-logging:
-  level:
-    root: INFO
-    org:
-      springframework:
-        web: INFO
-    kr: DEBUG
-        
-#dcc node setup        
-dcc:
-   user: multichainrpc  
-   password: dc!393939  
-#  port: "4444"  
-#  chainname: exco2  
-#  genesisblockhash: '"05d0631af7f3c31bcddd41077d76ddfb80a15ddd6eb802b24c5f1c1dc472e2d6"'
-   host: 192.168.15.10  
-   chainname: exco
-   genesisblockhash: '"7163414dc89e152ddeb525c67f11d2186db0c6f62e49aaafc1e2052d29a057fa"'
-  
-# for couchbase console
-#couchbase setup
-couchbase: 
-  bucket:
-    blocks:
-      name: Blocks
-    txs:
-      name: Transactions
-    streams:
-      name: Streams
-    name: Explorer
-    expiry: 0
-#    user: Administrator
-#    password: dc!393939
-#    ip: 192.168.0.145
-    user: jsg0212
-    password: dc393939
-    ip: 192.168.0.145
-
-#websocket channel
-websocket:
-  broadcast:
-    channel: '/subscribe/broadcast'
-    channel2: '/subscribe/broadcast2'
-  channel: '/ws'
-  subscribe:
-    channel: '/subscribe'
