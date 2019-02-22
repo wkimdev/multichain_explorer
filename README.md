@@ -21,8 +21,8 @@
 - stomp-websocket : 2.3.3
 
 ## 프론트단 + API 호출 서버단 구조
-- 전체구조(frontend + backend)
-![projectarch](/path/to/img.jpg)
+- 전체구조(frontend + backend) 
+<img width="1022" alt="2019-02-21 11 14 33" src="https://user-images.githubusercontent.com/32521173/53138533-f49ae000-35c9-11e9-9ca1-9188f9228669.png">
 
 
 ## localhost path setting
